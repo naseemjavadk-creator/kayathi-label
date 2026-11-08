@@ -15,6 +15,7 @@
  * @property {string} label
  * @property {string} href
  * @property {boolean} [highlight]
+ * @property {Array<{ label: string, href: string }>} [children]
  */
 
 export const SHOW_SAMPLE_PRODUCTS =
@@ -49,9 +50,15 @@ export const SITE_CONFIG = {
   navigation: [
     { label: 'Home', href: '/' },
     { label: 'Sarees', href: '/category/sarees' },
-    { label: 'Jewellery', href: '/category/jewellery' },
-    { label: 'Bangles', href: '/category/bangles-bracelets' },
-    { label: 'Rings', href: '/category/rings' },
+    {
+      label: 'Jewellery',
+      href: '/category/jewellery',
+      children: [
+        { label: 'All Jewellery', href: '/category/jewellery' },
+        { label: 'Bangles & Bracelets', href: '/category/bangles-bracelets' },
+        { label: 'Rings', href: '/category/rings' },
+      ],
+    },
     { label: 'Accessories', href: '/category/accessories' },
     { label: 'New Arrivals', href: '/new-arrivals' },
     { label: 'Gifts', href: '/shop?max=2500' },

@@ -14,6 +14,7 @@ export const NAV = SITE_CONFIG.navigation;
 export default function Header({ settings = {} }) {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
     function onScroll() {
@@ -117,22 +118,84 @@ export default function Header({ settings = {} }) {
 
       <nav aria-label="Main" className="border-t border-ivory/20">
         <ul
-          className={`container-x flex items-center justify-start gap-5 overflow-x-auto whitespace-nowrap transition-all duration-200 lg:justify-center lg:gap-8 ${
+          className={`container-x flex flex-wrap items-center justify-center gap-x-5 gap-y-2 whitespace-nowrap transition-all duration-200 lg:gap-x-8 ${
             scrolled ? 'py-2' : 'py-3'
           }`}
         >
-          {NAV.map((i) => (
-            <li key={i.href + i.label}>
-              <Link
-                href={i.href}
-                className={`text-[12px] uppercase tracking-[0.16em] transition-colors hover:text-gold md:text-[13px] ${
-                  i.highlight ? 'font-medium text-gold' : 'text-ivory'
-                }`}
+          {NAV.map((i) => {
+            const hasChildren = Array.isArray(i.children) && i.children.length > 0;
+            const isOpen = openDropdown === i.label;
+
+            if (!hasChildren) {
+              return (
+                <li key={i.href + i.label}>
+                  <Link
+                    href={i.href}
+                    className={`text-[12px] uppercase tracking-[0.16em] transition-colors hover:text-gold md:text-[13px] ${
+                      i.highlight ? 'font-medium text-gold' : 'text-ivory'
+                    }`}
+                  >
+                    {i.label}
+                  </Link>
+                </li>
+              );
+            }
+
+            return (
+              <li
+                key={i.href + i.label}
+                className="relative"
+                onMouseEnter={() => setOpenDropdown(i.label)}
+                onMouseLeave={() => setOpenDropdown(null)}
               >
-                {i.label}
-              </Link>
-            </li>
-          ))}
+                <div className="inline-flex items-center gap-1">
+                  <Link
+                    href={i.href}
+                    className="text-[12px] uppercase tracking-[0.16em] text-ivory transition-colors hover:text-gold md:text-[13px]"
+                  >
+                    {i.label}
+                  </Link>
+                  <button
+                    type="button"
+                    aria-label={`${i.label} submenu`}
+                    aria-expanded={isOpen}
+                    onClick={() => setOpenDropdown(isOpen ? null : i.label)}
+                    className="p-0.5 text-gold transition-transform duration-200 hover:text-ivory"
+                  >
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                {isOpen && (
+                  <div className="absolute left-1/2 top-full z-50 min-w-[200px] -translate-x-1/2 pt-2">
+                    <ul className="divide-y divide-ivory/15 border border-gold/40 bg-burgundy-dark py-1.5 shadow-xl">
+                      {i.children.map((child) => (
+                        <li key={child.href + child.label}>
+                          <Link
+                            href={child.href}
+                            onClick={() => setOpenDropdown(null)}
+                            className="block px-4 py-2.5 text-xs uppercase tracking-[0.14em] text-ivory transition-colors hover:bg-burgundy hover:text-gold"
+                          >
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </header>

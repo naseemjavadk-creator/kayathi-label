@@ -93,9 +93,20 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
   if (categorySlug && !scopeCat) notFound();
   const sub = scopeCat ? (scopeCat.subcategories || []).find((s) => s.slug === sp.sub) : null;
 
+  const isJewelleryGroup = ['jewellery', 'bangles-bracelets', 'rings'].includes(scopeCat?.slug);
+  const jewelleryCatIds = cats
+    .filter((c) => ['jewellery', 'bangles-bracelets', 'rings'].includes(c.slug))
+    .map((c) => c.id);
+
   const scoped = (q) => {
     q = q.eq('is_published', true);
-    if (scopeCat) q = q.eq('category_id', scopeCat.id);
+    if (scopeCat) {
+      if (scopeCat.slug === 'jewellery' && !sub && jewelleryCatIds.length > 0) {
+        q = q.in('category_id', jewelleryCatIds);
+      } else {
+        q = q.eq('category_id', scopeCat.id);
+      }
+    }
     if (onlyNew) q = q.eq('is_new', true);
     return q;
   };
@@ -135,6 +146,46 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
       <div className="mb-8">
         <h1 className="text-4xl md:text-5xl">{heading}</h1>
         {intro && <p className="mt-3 max-w-2xl text-espresso/75">{intro}</p>}
+        {isJewelleryGroup && (
+          <ul className="mt-5 flex flex-wrap gap-2">
+            <li>
+              <Link
+                href="/category/jewellery"
+                className={`border px-3 py-1.5 text-sm ${
+                  scopeCat?.slug === 'jewellery' && !sub
+                    ? 'border-burgundy bg-burgundy text-ivory'
+                    : 'border-espresso/25 hover:border-burgundy'
+                }`}
+              >
+                All Jewellery
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/category/bangles-bracelets"
+                className={`border px-3 py-1.5 text-sm ${
+                  scopeCat?.slug === 'bangles-bracelets'
+                    ? 'border-burgundy bg-burgundy text-ivory'
+                    : 'border-espresso/25 hover:border-burgundy'
+                }`}
+              >
+                Bangles &amp; Bracelets
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/category/rings"
+                className={`border px-3 py-1.5 text-sm ${
+                  scopeCat?.slug === 'rings'
+                    ? 'border-burgundy bg-burgundy text-ivory'
+                    : 'border-espresso/25 hover:border-burgundy'
+                }`}
+              >
+                Rings
+              </Link>
+            </li>
+          </ul>
+        )}
         {view && view.subcategories.length > 0 && (
           <ul className="mt-5 flex flex-wrap gap-2">
             <li>

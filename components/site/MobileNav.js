@@ -7,8 +7,13 @@ import { waLink, GENERAL_MESSAGE } from '@/lib/whatsapp';
 
 export default function MobileNav({ items = SITE_CONFIG.navigation, settings }) {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState({ Jewellery: true });
   const waNumber = settings?.whatsapp || SITE_CONFIG.whatsapp;
   const igUrl = settings?.instagram_url || SITE_CONFIG.instagramUrl;
+
+  function toggleGroup(label) {
+    setExpanded((prev) => ({ ...prev, [label]: !prev[label] }));
+  }
 
   return (
     <div className="lg:hidden">
@@ -36,19 +41,63 @@ export default function MobileNav({ items = SITE_CONFIG.navigation, settings }) 
             />
           </form>
           <ul className="divide-y divide-ivory/15">
-            {items.map((i) => (
-              <li key={i.href + i.label}>
-                <Link
-                  href={i.href}
-                  onClick={() => setOpen(false)}
-                  className={`block py-3 text-sm uppercase tracking-[0.14em] transition-colors hover:text-gold ${
-                    i.highlight ? 'font-medium text-gold' : 'text-ivory'
-                  }`}
-                >
-                  {i.label}
-                </Link>
-              </li>
-            ))}
+            {items.map((i) => {
+              const hasChildren = Array.isArray(i.children) && i.children.length > 0;
+              const isExpanded = Boolean(expanded[i.label]);
+              return (
+                <li key={i.href + i.label}>
+                  <div className="flex items-center justify-between">
+                    <Link
+                      href={i.href}
+                      onClick={() => setOpen(false)}
+                      className={`block flex-1 py-3 text-sm uppercase tracking-[0.14em] transition-colors hover:text-gold ${
+                        i.highlight ? 'font-medium text-gold' : 'text-ivory'
+                      }`}
+                    >
+                      {i.label}
+                    </Link>
+                    {hasChildren && (
+                      <button
+                        type="button"
+                        aria-label={`Toggle ${i.label} submenu`}
+                        aria-expanded={isExpanded}
+                        onClick={() => toggleGroup(i.label)}
+                        className="px-3 py-2 text-gold hover:text-ivory"
+                      >
+                        <svg
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className={`h-4 w-4 transition-transform duration-200 ${
+                            isExpanded ? 'rotate-180' : ''
+                          }`}
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                  {hasChildren && isExpanded && (
+                    <ul className="mb-2 space-y-1 border-l border-gold/40 pl-4">
+                      {i.children.map((child) => (
+                        <li key={child.href + child.label}>
+                          <Link
+                            href={child.href}
+                            onClick={() => setOpen(false)}
+                            className="block py-2 text-xs uppercase tracking-[0.14em] text-ivory/85 transition-colors hover:text-gold"
+                          >
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
             <li>
               <Link
                 href="/about"

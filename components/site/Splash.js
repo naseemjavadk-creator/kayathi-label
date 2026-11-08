@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { DEFAULT_LOGO } from './Logo';
 
 // Opening screen: the logo fades in, a gold line draws, then the screen lifts away upward.
@@ -29,8 +30,13 @@ export default function Splash({ logoSrc }) {
   return (
     <div id="splash" className={phase === 'out' ? 'out' : ''} aria-hidden="true" onClick={() => setPhase('out')}>
       <div className="inner">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoSrc || DEFAULT_LOGO} alt="KAYATHI LABEL" width={747} height={600} />
+        <Image
+          src={logoSrc || DEFAULT_LOGO}
+          alt="KAYATHI LABEL"
+          width={747}
+          height={600}
+          sizes="(min-width: 768px) 380px, 72vw"
+        />
         <div className="ln" />
         <div className="tg">THE ART OF ETHNIC ELEGANCE</div>
       </div>

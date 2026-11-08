@@ -7,6 +7,7 @@
   body { @apply bg-ivory text-espresso font-sans antialiased; }
   h1, h2, h3, h4 { @apply font-serif font-medium text-espresso; }
   :focus-visible { outline: 2px solid #64152D; outline-offset: 3px; }
+  .bg-burgundy :focus-visible, .bg-logo :focus-visible { outline-color: #EAD3A0; }
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   }

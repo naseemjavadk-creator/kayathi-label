@@ -24,7 +24,7 @@ export default function Header({ settings }) {
         <div className="w-24 lg:w-48">
           <MobileNav items={NAV} />
           <form action="/shop" className="hidden lg:block">
-            <input name="q" type="search" placeholder="Search" aria-label="Search products" className="w-36 border-b border-ivory/40 bg-transparent py-1 text-sm text-ivory placeholder:text-ivory/60 focus:border-gold focus:outline-none" />
+            <input name="q" type="search" placeholder="Search" aria-label="Search products" className="w-36 border-b border-ivory/50 bg-transparent py-1 text-sm text-ivory placeholder:text-ivory/80 focus:border-gold focus:outline-none" />
           </form>
         </div>
 

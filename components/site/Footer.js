@@ -50,7 +50,7 @@ export default function Footer({ settings }) {
         </div>
       </div>
       <div className="border-t border-ivory/15 pb-20 md:pb-4">
-        <div className="container-x flex flex-wrap items-center justify-between gap-2 py-5 text-xs text-ivory/75">
+        <div className="container-x flex flex-wrap items-center justify-between gap-2 py-5 text-xs text-ivory/85">
           <p>© {new Date().getFullYear()} KAYATHI LABEL. All rights reserved.</p>
           <div className="flex flex-wrap gap-4">
             <Link href="/shipping-returns" className="hover:text-gold">Shipping &amp; Returns</Link>

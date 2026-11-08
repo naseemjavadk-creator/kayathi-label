@@ -148,7 +148,7 @@ export default async function Home() {
                   width={1024}
                   height={559}
                   priority
-                  sizes="(min-width: 768px) 50vw, 100vw"
+                  sizes="(min-width: 1280px) 640px, (min-width: 768px) 50vw, 100vw"
                   className="block h-auto w-full object-contain"
                 />
                 <span

@@ -20,6 +20,23 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setBusy(true);
+
+    try {
+      const rlRes = await fetch('/api/admin/rate-limit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'attempt' }),
+      });
+      if (rlRes.status === 429) {
+        const rlData = await rlRes.json().catch(() => ({}));
+        setBusy(false);
+        setError(rlData.message || 'Too many login attempts. Please wait 15 minutes and try again.');
+        return;
+      }
+    } catch {
+      /* continue if rate-limit endpoint is unreachable */
+    }
+
     const sb = supabaseBrowser();
     const { data, error: err } = await sb.auth.signInWithPassword({ email: email.trim(), password });
     if (err) {
@@ -34,6 +51,13 @@ export default function Login() {
       setError('This account does not have owner access.');
       return;
     }
+    try {
+      await fetch('/api/admin/rate-limit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset' }),
+      });
+    } catch {}
     router.replace('/admin');
     router.refresh();
   }

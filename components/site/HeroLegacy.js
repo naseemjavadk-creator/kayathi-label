@@ -17,13 +17,15 @@ export default function HeroLegacy({ banners = [] }) {
         className="group relative block w-full cursor-pointer overflow-hidden bg-burgundy"
       >
         <Image
-          src="/brand/timeless-beauty-hero.jpg"
+          src="/brand/timeless-beauty-hero.png"
           alt="KAYATHI LABELS — Timeless Beauty, Forever Yours. Premium Sarees, Exquisite Jewellery & More"
           width={1024}
           height={428}
           priority
+          quality={100}
+          unoptimized
           sizes="100vw"
-          className="block h-auto w-full object-contain"
+          className="block h-auto w-full object-contain [image-rendering:high-quality]"
         />
         {/* Interactive hover ring on the "Explore Collection ->" button */}
         <span

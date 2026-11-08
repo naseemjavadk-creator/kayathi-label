@@ -207,6 +207,7 @@ export default function HeroCarousel({ dbBanners = [] }) {
                           width={1024}
                           height={559}
                           priority={isFirst}
+                          quality={95}
                           loading={isFirst ? 'eager' : 'lazy'}
                           sizes="(min-width: 1280px) 640px, (min-width: 768px) 50vw, 100vw"
                           className={`block h-auto w-full object-contain ${zoomClass}`}

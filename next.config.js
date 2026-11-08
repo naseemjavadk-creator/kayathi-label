@@ -15,7 +15,7 @@ module.exports = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [360, 420, 640, 750, 828, 1080, 1200],
+    deviceSizes: [360, 420, 640, 750, 828, 1080, 1200, 1440, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: host
       ? [{ protocol: 'https', hostname: host, pathname: '/storage/v1/object/public/**' }]

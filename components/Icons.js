@@ -54,3 +54,61 @@ export const BagIcon = ({ className = 'h-5 w-5' }) => (
     <path d="M9 8V6a3 3 0 016 0v2" />
   </svg>
 );
+
+export const ShieldCheckIcon = ({ className = 'h-6 w-6' }) => (
+  <svg {...base} viewBox="0 0 24 24" {...stroke} className={className}>
+    <path d="M12 3l7 3v6c0 5-3.5 8.5-7 9-3.5-.5-7-4-7-9V6l7-3z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
+
+export const RefreshIcon = ({ className = 'h-6 w-6' }) => (
+  <svg {...base} viewBox="0 0 24 24" {...stroke} className={className}>
+    <path d="M4 12a8 8 0 0114-5.3L20 9" />
+    <path d="M20 4v5h-5" />
+    <path d="M20 12a8 8 0 01-14 5.3L4 15" />
+    <path d="M4 20v-5h5" />
+  </svg>
+);
+
+export const PackageIcon = ({ className = 'h-6 w-6' }) => (
+  <svg {...base} viewBox="0 0 24 24" {...stroke} className={className}>
+    <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" />
+    <path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" />
+    <path d="M8 5.25l8 4.5" />
+  </svg>
+);
+
+export const TruckIcon = ({ className = 'h-6 w-6' }) => (
+  <svg {...base} viewBox="0 0 24 24" {...stroke} className={className}>
+    <rect x="2" y="6" width="13" height="10" rx="1" />
+    <path d="M15 9h4l3 3v4h-7V9z" />
+    <circle cx="7" cy="18" r="2" />
+    <circle cx="18" cy="18" r="2" />
+  </svg>
+);
+
+export const StarIcon = ({ className = 'h-4 w-4' }) => (
+  <svg {...base} viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" />
+  </svg>
+);
+
+export const ZoomInIcon = ({ className = 'h-5 w-5' }) => (
+  <svg {...base} viewBox="0 0 24 24" {...stroke} className={className}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M20 20l-3.5-3.5M11 8v6M8 11h6" />
+  </svg>
+);
+
+export const ChevronLeftIcon = ({ className = 'h-5 w-5' }) => (
+  <svg {...base} viewBox="0 0 24 24" {...stroke} className={className}>
+    <path d="M15 18l-6-6 6-6" />
+  </svg>
+);
+
+export const ChevronRightIcon = ({ className = 'h-5 w-5' }) => (
+  <svg {...base} viewBox="0 0 24 24" {...stroke} className={className}>
+    <path d="M9 18l6-6-6-6" />
+  </svg>
+);

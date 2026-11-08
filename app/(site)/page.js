@@ -19,6 +19,8 @@ import { InstagramIcon } from '@/components/Icons';
 import Reveal from '@/components/site/Reveal';
 import Twinkles from '@/components/site/Twinkles';
 import PlayTeaser from '@/components/site/PlayTeaser';
+import TrustStrip from '@/components/site/TrustStrip';
+import Testimonials from '@/components/site/Testimonials';
 
 export const dynamic = 'force-dynamic';
 const SEL = '*, product_images(url,sort_order)';
@@ -71,6 +73,18 @@ export default async function Home() {
     return p ? sortedImages(p)[0].url : null;
   };
 
+  const dbInstagramTiles = (insta.data || []).map((p, idx) => ({
+    id: p.id || `db-ig-${idx}`,
+    imageUrl: p.image_url,
+    alt: `KAYATHI LABEL on Instagram (${idx + 1})`,
+    caption: settings.instagram_handle,
+    href: p.link_url || settings.instagram_url,
+  }));
+  const instagramTiles = [
+    ...dbInstagramTiles,
+    ...(SITE_CONFIG.instagramTiles || []).slice(dbInstagramTiles.length),
+  ].slice(0, 6);
+
   return (
     <>
       {bannerList.length > 0 ? (
@@ -80,8 +94,13 @@ export default async function Home() {
           <div className="grid items-center md:grid-cols-2">
             <div className="relative flex flex-col justify-center overflow-hidden px-6 py-12 md:px-14 md:py-14 lg:px-20">
               <Twinkles />
-              <h1 className="relative z-10 max-w-lg !text-ivory text-5xl leading-[1.05] md:text-7xl">The art of ethnic elegance</h1>
-              <p className="relative z-10 mt-6 max-w-md text-ivory/85 md:text-lg">
+              <h1 className="relative z-10 max-w-lg !text-ivory text-5xl leading-[1.05] md:text-7xl">
+                {SITE_CONFIG.tagline}
+              </h1>
+              <p className="relative z-10 mt-4 max-w-md font-medium text-gold md:text-lg">
+                {SITE_CONFIG.valueProposition}
+              </p>
+              <p className="relative z-10 mt-3 max-w-md text-ivory/85 md:text-base">
                 Sarees, jewellery, bangles, rings and accessories from KAYATHI LABEL.
               </p>
               <div className="relative z-10 mt-9 flex flex-wrap gap-3">
@@ -110,6 +129,8 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      <TrustStrip />
 
       <Reveal as="section" className="container-x py-14 text-center md:py-20">
         <p className="mx-auto max-w-3xl font-serif text-2xl leading-relaxed md:text-3xl">{settings.home_intro}</p>
@@ -145,6 +166,7 @@ export default async function Home() {
       <ProductRow title="Best sellers" href="/shop" products={bestSellersList} minItems={MIN_SECTION_ITEMS} />
       <ProductRow title="Special offers" href="/shop?sort=price_asc" products={specialOffersList} minItems={MIN_SECTION_ITEMS} />
       <PlayTeaser products={playProducts} whatsapp={settings.whatsapp} />
+      <Testimonials />
 
       <Reveal as="section" className="mt-6 bg-ivory-deep">
         <div className="container-x grid gap-8 py-16 md:grid-cols-2 md:py-20">
@@ -163,12 +185,29 @@ export default async function Home() {
             <InstagramIcon /> Follow {settings.instagram_handle}
           </a>
         </div>
-        {(insta.data || []).length > 0 && (
-          <ul className="grid grid-cols-3 gap-2 md:grid-cols-6">
-            {insta.data.map((p) => (
-              <li key={p.id}>
-                <a href={p.link_url || settings.instagram_url} target="_blank" rel="noopener noreferrer" className="relative block aspect-square overflow-hidden" aria-label="View on Instagram">
-                  <Image src={p.image_url} alt="" fill sizes="(min-width:768px) 16vw, 33vw" className="object-cover" />
+        {instagramTiles.length > 0 && (
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+            {instagramTiles.map((tile) => (
+              <li key={tile.id}>
+                <a
+                  href={tile.href || settings.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block aspect-square overflow-hidden bg-burgundy"
+                  aria-label={tile.alt || `View ${settings.instagram_handle} on Instagram`}
+                >
+                  <Image
+                    src={tile.imageUrl}
+                    alt={tile.alt || `${settings.instagram_handle} Instagram post`}
+                    fill
+                    sizes="(min-width: 768px) 16vw, 50vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {tile.caption && (
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-espresso/80 to-transparent px-2.5 py-2 text-xs text-ivory opacity-90 transition-opacity group-hover:opacity-100">
+                      {tile.caption}
+                    </span>
+                  )}
                 </a>
               </li>
             ))}

@@ -50,8 +50,8 @@ export default async function Home() {
         <BannerSlider banners={bannerList} />
       ) : (
         <section className="bg-burgundy text-ivory">
-          <div className="grid md:grid-cols-2">
-            <div className="relative flex flex-col justify-center overflow-hidden px-6 py-16 md:px-14 md:py-24 lg:px-20">
+          <div className="grid items-center md:grid-cols-2">
+            <div className="relative flex flex-col justify-center overflow-hidden px-6 py-12 md:px-14 md:py-14 lg:px-20">
               <Twinkles />
               <h1 className="relative z-10 max-w-lg !text-ivory text-5xl leading-[1.05] md:text-7xl">The art of ethnic elegance</h1>
               <p className="relative z-10 mt-6 max-w-md text-ivory/85 md:text-lg">
@@ -63,8 +63,16 @@ export default async function Home() {
                 <Link href="#fun-zone" className="btn btn-outline-light">Fun zone</Link>
               </div>
             </div>
-            <div className="relative min-h-[260px] w-full aspect-[16/9] bg-gold/25 md:aspect-auto md:min-h-[560px]">
-              <Photo src="/brand/hero-banner.jpg" alt="KAYATHI LABELS — Elegance in Every Thread" priority sizes="(min-width: 768px) 50vw, 100vw" />
+            <div className="relative flex w-full items-center justify-center bg-burgundy">
+              <Image
+                src="/brand/hero-banner.jpg"
+                alt="KAYATHI LABELS — Elegance in Every Thread"
+                width={1024}
+                height={559}
+                priority
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="block h-auto w-full object-contain"
+              />
             </div>
           </div>
         </section>

@@ -64,15 +64,17 @@ export default async function Home() {
               </div>
             </div>
             <div className="relative flex w-full items-center justify-center bg-burgundy">
-              <Image
-                src="/brand/hero-banner.jpg"
-                alt="KAYATHI LABELS — Elegance in Every Thread"
-                width={1024}
-                height={559}
-                priority
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className="block h-auto w-full object-contain"
-              />
+              <Link href="/shop" aria-label="Shop now" className="relative block w-full cursor-pointer">
+                <Image
+                  src="/brand/hero-banner.jpg"
+                  alt="KAYATHI LABELS — Elegance in Every Thread"
+                  width={1024}
+                  height={559}
+                  priority
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="block h-auto w-full object-contain"
+                />
+              </Link>
             </div>
           </div>
         </section>

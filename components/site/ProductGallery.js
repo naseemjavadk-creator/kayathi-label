@@ -6,8 +6,17 @@ export default function ProductGallery({ images, name }) {
   const [i, setI] = useState(0);
   if (!images.length) {
     return (
-      <div className="relative aspect-[3/4] bg-gold/30">
-        <div className="absolute inset-0 flex items-center justify-center font-serif text-xl italic text-burgundy/60">Photo coming soon</div>
+      <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-burgundy via-logo to-burgundy-dark">
+        <div className="absolute inset-0 flex items-center justify-center p-10">
+          <Image
+            src="/brand/logo-on-burgundy.png"
+            alt={name || 'KAYATHI LABEL'}
+            width={360}
+            height={289}
+            sizes="280px"
+            className="h-auto w-3/5 max-w-[240px] object-contain opacity-90"
+          />
+        </div>
       </div>
     );
   }

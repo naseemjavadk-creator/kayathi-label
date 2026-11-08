@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { publicClient } from '@/lib/data';
+import { publicClient, filterVisibleProducts } from '@/lib/data';
 import ProductCard from './ProductCard';
 
 const clean = (s) => String(s || '').replace(/[%,()*\\]/g, ' ').trim().slice(0, 60);
@@ -101,12 +101,13 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
   };
 
   // Colour and size choices come from what is actually in this part of the catalogue.
-  const { data: opts } = await scoped(db.from('products').select('colours,sizes,subcategory_id,is_available,stock'));
-  const colours = [...new Set((opts || []).flatMap((o) => o.colours || []))].sort();
-  const sizes = [...new Set((opts || []).flatMap((o) => o.sizes || []))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  const { data: rawOpts } = await scoped(db.from('products').select('name,sku,colours,sizes,subcategory_id,is_available,stock'));
+  const opts = filterVisibleProducts(rawOpts || []);
+  const colours = [...new Set(opts.flatMap((o) => o.colours || []))].sort();
+  const sizes = [...new Set(opts.flatMap((o) => o.sizes || []))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
   // A type (like Nose Pins) is listed only while it has at least one product in stock.
-  const inStockSubs = new Set((opts || []).filter((o) => o.is_available && o.stock > 0).map((o) => o.subcategory_id));
+  const inStockSubs = new Set(opts.filter((o) => o.is_available && o.stock > 0).map((o) => o.subcategory_id));
   const view = scopeCat
     ? { ...scopeCat, subcategories: (scopeCat.subcategories || []).filter((s) => inStockSubs.has(s.id) || s.id === sub?.id) }
     : null;
@@ -126,7 +127,7 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
   else query = query.order('created_at', { ascending: false });
 
   const { data, error } = await query;
-  const products = data || [];
+  const products = filterVisibleProducts(data || []);
   const heading = title || scopeCat?.name || 'All collections';
 
   return (

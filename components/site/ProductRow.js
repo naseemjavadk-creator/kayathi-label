@@ -2,8 +2,8 @@ import Link from 'next/link';
 import ProductCard from './ProductCard';
 import Reveal from './Reveal';
 
-export default function ProductRow({ title, href, products, linkLabel = 'View all' }) {
-  if (!products || products.length === 0) return null;
+export default function ProductRow({ title, href, products, linkLabel = 'View all', minItems = 3 }) {
+  if (!products || products.length < minItems) return null;
   return (
     <Reveal as="section" className="container-x py-12 md:py-16">
       <div className="mb-7 flex items-end justify-between gap-4">

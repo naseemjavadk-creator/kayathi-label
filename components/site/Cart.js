@@ -145,9 +145,9 @@ export function FloatingCartButton() {
       type="button"
       onClick={() => setOpen(true)}
       aria-label={`Open shopping bag (${count} items)`}
-      className="fixed bottom-[9.25rem] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-burgundy text-ivory shadow-lg ring-2 ring-gold transition-colors hover:bg-burgundy-dark"
+      className="fixed bottom-[8.25rem] right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-burgundy text-ivory shadow-lg ring-2 ring-gold transition-colors hover:bg-burgundy-dark md:bottom-[9.25rem] md:right-5 md:h-14 md:w-14"
     >
-      <BagIcon className="h-7 w-7" />
+      <BagIcon className="h-6 w-6 md:h-7 md:w-7" />
       {count > 0 && (
         <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-gold px-1 text-xs font-semibold text-burgundy">
           {count}

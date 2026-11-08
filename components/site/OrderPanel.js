@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { BagIcon, WhatsAppIcon } from '@/components/Icons';
 import { useCart } from './Cart';
-import { waLink, buildOrderMessage } from '@/lib/whatsapp';
+import { buildWhatsAppLink } from '@/lib/whatsapp';
 
 export default function OrderPanel({ product, whatsapp }) {
   const { sizes = [], colours = [], stock } = product;
@@ -16,7 +16,7 @@ export default function OrderPanel({ product, whatsapp }) {
   useEffect(() => setUrl(window.location.origin + window.location.pathname), []);
 
   const missing = [sizes.length > 0 && !size && 'a size', colours.length > 0 && !colour && 'a colour'].filter(Boolean);
-  const href = waLink(whatsapp, buildOrderMessage({ product, size, colour, qty, url }));
+  const href = buildWhatsAppLink({ product, size, colour, qty, url, whatsapp });
   const maxQty = Math.max(1, Math.min(stock, 10));
 
   const Chip = ({ active, onClick, children }) => (

@@ -47,6 +47,7 @@ export const SITE_CONFIG = {
 
   /** @type {NavItem[]} */
   navigation: [
+    { label: 'Home', href: '/' },
     { label: 'Sarees', href: '/category/sarees' },
     { label: 'Jewellery', href: '/category/jewellery' },
     { label: 'Bangles', href: '/category/bangles-bracelets' },

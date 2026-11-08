@@ -30,6 +30,25 @@ export const HERO_CONFIG = {
 /** @type {HeroSlide[]} */
 export const HERO_SLIDES = [
   {
+    id: 'slide-art-of-ethnic-elegance',
+    active: true,
+    startDate: '2026-01-01',
+    endDate: '2028-12-31',
+    desktopImage: '/brand/hero-banner.jpg',
+    mobileImage: '/brand/hero-banner.jpg',
+    imageAlt: 'KAYATHI LABELS — Elegance in Every Thread',
+    eyebrow: '',
+    heading: 'The Art of Ethnic Elegance',
+    valueProp: 'Handpicked sarees & jewellery. Order easily on WhatsApp. Delivery across India.',
+    subheading: 'Sarees, jewellery, bangles, rings and accessories from KAYATHI LABEL.',
+    ctaLabel: 'Shop now',
+    ctaHref: '/shop',
+    secondaryCtaLabel: 'New arrivals',
+    secondaryCtaHref: '/new-arrivals',
+    tertiaryCtaLabel: 'Fun zone',
+    tertiaryCtaHref: '#fun-zone',
+  },
+  {
     id: 'slide-signature-sarees',
     active: true,
     startDate: '2026-01-01',
@@ -100,3 +119,4 @@ export function getActiveHeroSlides(slides = HERO_SLIDES, now = new Date()) {
     return true;
   });
 }
+

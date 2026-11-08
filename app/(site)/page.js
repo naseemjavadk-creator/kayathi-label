@@ -131,13 +131,11 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd).replace(/</g, '\\u003c') }}
       />
-      {HERO_CONFIG.useLegacyHero ? (
-        <HeroLegacy banners={bannerList} />
-      ) : (
-        <HeroCarousel dbBanners={bannerList} />
-      )}
+      <HeroLegacy banners={bannerList} />
 
       <TrustStrip />
+
+      <HeroCarousel dbBanners={[]} />
 
       <CategoryTiles coverBySlug={coverBySlug} />
 

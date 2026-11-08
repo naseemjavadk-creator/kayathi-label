@@ -117,7 +117,7 @@ export default function HeroCarousel({ dbBanners = [] }) {
         {slides.map((slide, idx) => {
           const isActive = idx === index;
           const isFirst = idx === 0;
-          const HeadingTag = isFirst ? 'h1' : 'h2';
+          const HeadingTag = 'h2';
           const hasPhoto = Boolean(slide.desktopImage || slide.mobileImage);
           const zoomClass =
             !reducedMotion && HERO_CONFIG.enableSubtleZoom && isActive
@@ -139,22 +139,27 @@ export default function HeroCarousel({ dbBanners = [] }) {
             >
               <div className="grid min-h-[540px] items-center md:min-h-[480px] md:grid-cols-2 lg:min-h-[540px]">
                 {/* Left Editorial Copy Panel */}
-                <div className="relative flex flex-col justify-center overflow-hidden px-6 py-10 md:px-12 md:py-14 lg:px-20">
+                <div className="relative flex flex-col justify-center overflow-hidden px-6 py-12 md:pl-16 md:pr-12 md:py-14 lg:pl-20 lg:pr-16">
                   <Twinkles />
                   {slide.eyebrow && (
-                    <p className="relative z-10 text-xs font-medium uppercase tracking-[0.24em] text-gold">
+                    <p className="relative z-10 mb-3 text-xs font-medium uppercase tracking-[0.24em] text-gold">
                       {slide.eyebrow}
                     </p>
                   )}
-                  <HeadingTag className="relative z-10 mt-3 max-w-xl font-serif text-4xl leading-[1.08] !text-ivory md:text-5xl lg:text-6xl">
+                  <HeadingTag className="relative z-10 max-w-lg font-serif text-5xl leading-[1.05] !text-ivory md:text-6xl lg:text-7xl">
                     {slide.heading}
                   </HeadingTag>
+                  {slide.valueProp && (
+                    <p className="relative z-10 mt-4 max-w-md font-medium text-gold md:text-lg">
+                      {slide.valueProp}
+                    </p>
+                  )}
                   {slide.subheading && (
-                    <p className="relative z-10 mt-4 max-w-md text-sm leading-relaxed text-ivory/90 md:text-base">
+                    <p className="relative z-10 mt-3 max-w-md text-sm leading-relaxed text-ivory/85 md:text-base">
                       {slide.subheading}
                     </p>
                   )}
-                  <div className="relative z-10 mt-7 flex flex-wrap gap-3">
+                  <div className="relative z-10 mt-9 flex flex-wrap gap-3">
                     {slide.ctaLabel && slide.ctaHref && (
                       <Link
                         href={slide.ctaHref}
@@ -171,6 +176,15 @@ export default function HeroCarousel({ dbBanners = [] }) {
                         className="btn btn-outline-light"
                       >
                         {slide.secondaryCtaLabel}
+                      </Link>
+                    )}
+                    {slide.tertiaryCtaLabel && slide.tertiaryCtaHref && (
+                      <Link
+                        href={slide.tertiaryCtaHref}
+                        tabIndex={isActive ? 0 : -1}
+                        className="btn btn-outline-light"
+                      >
+                        {slide.tertiaryCtaLabel}
                       </Link>
                     )}
                   </div>
@@ -252,53 +266,48 @@ export default function HeroCarousel({ dbBanners = [] }) {
         })}
       </div>
 
-      {/* Desktop Prev/Next Arrows */}
+      {/* Bottom Control Bar: Prev Arrow, Slide Dots, Next Arrow (never overlaps slide text) */}
       {count > 1 && (
-        <>
+        <div className="relative z-20 flex items-center justify-center gap-4 border-t border-gold/15 bg-burgundy-dark/60 py-2.5">
           <button
             type="button"
             onClick={prev}
             aria-label="Previous slide"
-            className="hidden md:flex absolute left-3 top-1/2 z-20 h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold/50 bg-burgundy-dark/80 text-gold shadow-md transition hover:border-gold hover:bg-burgundy hover:text-ivory"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-gold/50 bg-burgundy-dark/80 text-gold transition hover:border-gold hover:bg-burgundy hover:text-ivory"
           >
-            <ChevronLeftIcon className="h-5 w-5" />
+            <ChevronLeftIcon className="h-4 w-4" />
           </button>
+
+          <div className="flex items-center gap-2.5" role="tablist" aria-label="Choose slide">
+            {slides.map((s, idx) => {
+              const active = idx === index;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  aria-label={`Show slide ${idx + 1}: ${s.heading}`}
+                  onClick={() => setIndex(idx)}
+                  className={`h-2.5 rounded-full border border-gold transition-all duration-300 ${
+                    active ? 'w-7 bg-gold' : 'w-2.5 bg-transparent hover:bg-gold/40'
+                  }`}
+                />
+              );
+            })}
+          </div>
+
           <button
             type="button"
             onClick={next}
             aria-label="Next slide"
-            className="hidden md:flex absolute right-3 top-1/2 z-20 h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gold/50 bg-burgundy-dark/80 text-gold shadow-md transition hover:border-gold hover:bg-burgundy hover:text-ivory"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-gold/50 bg-burgundy-dark/80 text-gold transition hover:border-gold hover:bg-burgundy hover:text-ivory"
           >
-            <ChevronRightIcon className="h-5 w-5" />
+            <ChevronRightIcon className="h-4 w-4" />
           </button>
-        </>
-      )}
-
-      {/* Slide Indicator Dots */}
-      {count > 1 && (
-        <div
-          className="relative z-20 flex items-center justify-center gap-2.5 border-t border-gold/15 bg-burgundy-dark/60 py-3"
-          role="tablist"
-          aria-label="Choose slide"
-        >
-          {slides.map((s, idx) => {
-            const active = idx === index;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                aria-label={`Show slide ${idx + 1}: ${s.heading}`}
-                onClick={() => setIndex(idx)}
-                className={`h-2.5 rounded-full border border-gold transition-all duration-300 ${
-                  active ? 'w-7 bg-gold' : 'w-2.5 bg-transparent hover:bg-gold/40'
-                }`}
-              />
-            );
-          })}
         </div>
       )}
     </section>
   );
 }
+

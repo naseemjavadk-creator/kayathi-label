@@ -18,42 +18,42 @@ export default async function Contact() {
   const mapsUrl = s.maps_url.trim();
   const q = encodeURIComponent(address);
 
-  const contactJsonLd = [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: SITE_CONFIG.brandName,
-      url: base,
-      logo: `${base}/brand/logo-on-burgundy.png`,
-      email: s.email || SITE_CONFIG.email,
-      telephone: s.phone || SITE_CONFIG.phone,
-      sameAs: [s.instagram_url || SITE_CONFIG.instagramUrl].filter(Boolean),
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'ClothingStore',
-      name: SITE_CONFIG.brandName,
-      url: `${base}/contact`,
-      image: `${base}/brand/hero-banner.jpg`,
-      telephone: s.phone || SITE_CONFIG.phone,
-      email: s.email || SITE_CONFIG.email,
-      priceRange: '₹₹',
-      areaServed: 'IN',
-    },
-    ...(faqs.length > 0
-      ? [
-          {
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: faqs.map((f) => ({
-              '@type': 'Question',
-              name: f.question,
-              acceptedAnswer: { '@type': 'Answer', text: f.answer },
-            })),
-          },
-        ]
-      : []),
-  ];
+  const contactJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        name: SITE_CONFIG.brandName,
+        url: base,
+        logo: `${base}/brand/logo-on-burgundy.png`,
+        email: s.email || SITE_CONFIG.email,
+        telephone: s.phone || SITE_CONFIG.phone,
+        sameAs: [s.instagram_url || SITE_CONFIG.instagramUrl].filter(Boolean),
+      },
+      {
+        '@type': 'ClothingStore',
+        name: SITE_CONFIG.brandName,
+        url: `${base}/contact`,
+        image: `${base}/brand/hero-banner.jpg`,
+        telephone: s.phone || SITE_CONFIG.phone,
+        email: s.email || SITE_CONFIG.email,
+        priceRange: '₹₹',
+        areaServed: 'IN',
+      },
+      ...(faqs.length > 0
+        ? [
+            {
+              '@type': 'FAQPage',
+              mainEntity: faqs.map((f) => ({
+                '@type': 'Question',
+                name: f.question,
+                acceptedAnswer: { '@type': 'Answer', text: f.answer },
+              })),
+            },
+          ]
+        : []),
+    ],
+  };
 
   // Only show a map when the owner has supplied a real location.
   const embedSrc = mapsUrl.includes('google.com/maps/embed')

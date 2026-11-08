@@ -99,30 +99,31 @@ export default async function Home() {
   ].slice(0, 6);
 
   const base = siteUrl();
-  const homeJsonLd = [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: SITE_CONFIG.brandName,
-      url: base,
-      logo: `${base}/brand/logo-on-burgundy.png`,
-      email: settings.email || SITE_CONFIG.email,
-      telephone: settings.phone || SITE_CONFIG.phone,
-      sameAs: [settings.instagram_url || SITE_CONFIG.instagramUrl].filter(Boolean),
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'ClothingStore',
-      name: SITE_CONFIG.brandName,
-      description: settings.home_intro || SITE_CONFIG.valueProposition,
-      url: base,
-      image: `${base}/brand/hero-banner.jpg`,
-      telephone: settings.phone || SITE_CONFIG.phone,
-      email: settings.email || SITE_CONFIG.email,
-      priceRange: '₹₹',
-      areaServed: 'IN',
-    },
-  ];
+  const homeJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        name: SITE_CONFIG.brandName,
+        url: base,
+        logo: `${base}/brand/logo-on-burgundy.png`,
+        email: settings.email || SITE_CONFIG.email,
+        telephone: settings.phone || SITE_CONFIG.phone,
+        sameAs: [settings.instagram_url || SITE_CONFIG.instagramUrl].filter(Boolean),
+      },
+      {
+        '@type': 'ClothingStore',
+        name: SITE_CONFIG.brandName,
+        description: settings.home_intro || SITE_CONFIG.valueProposition,
+        url: base,
+        image: `${base}/brand/hero-banner.jpg`,
+        telephone: settings.phone || SITE_CONFIG.phone,
+        email: settings.email || SITE_CONFIG.email,
+        priceRange: '₹₹',
+        areaServed: 'IN',
+      },
+    ],
+  };
 
   return (
     <>

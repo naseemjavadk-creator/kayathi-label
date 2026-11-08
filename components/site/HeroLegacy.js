@@ -20,7 +20,7 @@ export default function HeroLegacy({ banners = [] }) {
           src="/brand/timeless-beauty-hero.png"
           alt="KAYATHI LABELS — Timeless Beauty, Forever Yours. Premium Sarees, Exquisite Jewellery & More"
           width={1024}
-          height={428}
+          height={429}
           priority
           quality={100}
           unoptimized
@@ -30,7 +30,7 @@ export default function HeroLegacy({ banners = [] }) {
         {/* Interactive hover ring on the "Explore Collection ->" button */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-[15.0%] top-[68.8%] h-[8.5%] w-[15.3%] rounded-md transition duration-200 group-hover:bg-ivory/15 group-hover:ring-2 group-hover:ring-gold group-active:scale-95"
+          className="pointer-events-none absolute left-[15.2%] top-[67.1%] h-[8.4%] w-[15.1%] rounded-md transition duration-200 group-hover:bg-ivory/15 group-hover:ring-2 group-hover:ring-gold group-active:scale-95"
         />
       </Link>
     </section>

@@ -2,8 +2,9 @@ import Catalogue from '@/components/site/Catalogue';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
-  title: 'New arrivals',
-  description: 'The latest sarees, jewellery, bangles and accessories at KAYATHI LABEL.',
+  title: 'New Arrivals Online',
+  description: 'Explore the latest handpicked sarees, jewellery, bangles and ethnic accessories at KAYATHI LABEL.',
+  alternates: { canonical: '/new-arrivals' },
 };
 
 export default function NewArrivals({ searchParams }) {

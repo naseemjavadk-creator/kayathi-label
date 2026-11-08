@@ -30,7 +30,7 @@ export default function Splash({ logoSrc }) {
     <div id="splash" className={phase === 'out' ? 'out' : ''} aria-hidden="true" onClick={() => setPhase('out')}>
       <div className="inner">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoSrc || DEFAULT_LOGO} alt="" width={747} height={600} />
+        <img src={logoSrc || DEFAULT_LOGO} alt="KAYATHI LABEL" width={747} height={600} />
         <div className="ln" />
         <div className="tg">THE ART OF ETHNIC ELEGANCE</div>
       </div>

@@ -16,14 +16,22 @@ export const metadata = {
   title: { default: 'KAYATHI LABEL | The Art of Ethnic Elegance', template: '%s | KAYATHI LABEL' },
   description:
     'KAYATHI LABEL is a premium Indian ethnic fashion and accessories boutique. Shop sarees, jewellery, bangles, rings and accessories and order on WhatsApp.',
+  alternates: { canonical: siteUrl() },
   openGraph: {
     type: 'website',
     siteName: 'KAYATHI LABEL',
     title: 'KAYATHI LABEL | The Art of Ethnic Elegance',
-    description: 'Premium Indian ethnic fashion and accessories. Order on WhatsApp.',
+    description: 'Handpicked sarees, jewellery, bangles, rings & ethnic accessories. Order easily on WhatsApp with delivery across India.',
+    url: siteUrl(),
     locale: 'en_IN',
+    images: [{ url: `${siteUrl()}/brand/hero-banner.jpg`, width: 1024, height: 559, alt: 'KAYATHI LABEL — The Art of Ethnic Elegance' }],
   },
-  twitter: { card: 'summary_large_image' },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KAYATHI LABEL | The Art of Ethnic Elegance',
+    description: 'Handpicked sarees, jewellery, bangles, rings & ethnic accessories. Order easily on WhatsApp.',
+    images: [`${siteUrl()}/brand/hero-banner.jpg`],
+  },
 };
 
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#64152D' };

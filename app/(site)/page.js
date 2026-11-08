@@ -8,6 +8,7 @@ import {
   filterVisibleProducts,
   isProductNew,
   hasRealDiscount,
+  siteUrl,
 } from '@/lib/data';
 import { SITE_CONFIG } from '@/config/site';
 import { loadPlayProducts } from '@/lib/playData';
@@ -85,8 +86,38 @@ export default async function Home() {
     ...(SITE_CONFIG.instagramTiles || []).slice(dbInstagramTiles.length),
   ].slice(0, 6);
 
+  const base = siteUrl();
+  const homeJsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: SITE_CONFIG.brandName,
+      url: base,
+      logo: `${base}/brand/logo-on-burgundy.png`,
+      email: settings.email || SITE_CONFIG.email,
+      telephone: settings.phone || SITE_CONFIG.phone,
+      sameAs: [settings.instagram_url || SITE_CONFIG.instagramUrl].filter(Boolean),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ClothingStore',
+      name: SITE_CONFIG.brandName,
+      description: settings.home_intro || SITE_CONFIG.valueProposition,
+      url: base,
+      image: `${base}/brand/hero-banner.jpg`,
+      telephone: settings.phone || SITE_CONFIG.phone,
+      email: settings.email || SITE_CONFIG.email,
+      priceRange: '₹₹',
+      areaServed: 'IN',
+    },
+  ];
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd).replace(/</g, '\\u003c') }}
+      />
       {bannerList.length > 0 ? (
         <BannerSlider banners={bannerList} />
       ) : (

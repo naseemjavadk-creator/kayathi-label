@@ -3,8 +3,9 @@ import { getSettings } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
-  title: 'About us',
+  title: 'About Us',
   description: 'About KAYATHI LABEL, a premium Indian ethnic fashion and accessories boutique.',
+  alternates: { canonical: '/about' },
 };
 
 export default async function About() {

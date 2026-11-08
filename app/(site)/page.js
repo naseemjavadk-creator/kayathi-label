@@ -63,8 +63,8 @@ export default async function Home() {
                 <Link href="#fun-zone" className="btn btn-outline-light">Fun zone</Link>
               </div>
             </div>
-            <div className="relative min-h-[320px] bg-gold/25 md:min-h-[560px]">
-              {heroImage ? <Photo src={heroImage} alt={heroProduct.name} priority sizes="50vw" /> : null}
+            <div className="relative min-h-[260px] w-full aspect-[16/9] bg-gold/25 md:aspect-auto md:min-h-[560px]">
+              <Photo src="/brand/hero-banner.jpg" alt="KAYATHI LABELS — Elegance in Every Thread" priority sizes="(min-width: 768px) 50vw, 100vw" />
             </div>
           </div>
         </section>

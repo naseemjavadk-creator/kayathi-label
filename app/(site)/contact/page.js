@@ -1,18 +1,59 @@
-import { getSettings } from '@/lib/data';
+import { getSettings, siteUrl } from '@/lib/data';
+import { SITE_CONFIG } from '@/config/site';
 import { waLink, GENERAL_MESSAGE } from '@/lib/whatsapp';
 import { WhatsAppIcon, InstagramIcon, PhoneIcon, MailIcon, MapPinIcon } from '@/components/Icons';
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
-  title: 'Contact us',
-  description: 'Contact KAYATHI LABEL by WhatsApp, phone, email or Instagram.',
+  title: 'Contact Us & FAQs',
+  description: 'Contact KAYATHI LABEL by WhatsApp, phone, email or Instagram. Read frequently asked questions about delivery, payment, and exchanges.',
+  alternates: { canonical: '/contact' },
 };
 
 export default async function Contact() {
   const s = await getSettings();
+  const base = siteUrl();
+  const faqs = SITE_CONFIG.faqs || [];
   const address = s.address.trim();
   const mapsUrl = s.maps_url.trim();
   const q = encodeURIComponent(address);
+
+  const contactJsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: SITE_CONFIG.brandName,
+      url: base,
+      logo: `${base}/brand/logo-on-burgundy.png`,
+      email: s.email || SITE_CONFIG.email,
+      telephone: s.phone || SITE_CONFIG.phone,
+      sameAs: [s.instagram_url || SITE_CONFIG.instagramUrl].filter(Boolean),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ClothingStore',
+      name: SITE_CONFIG.brandName,
+      url: `${base}/contact`,
+      image: `${base}/brand/hero-banner.jpg`,
+      telephone: s.phone || SITE_CONFIG.phone,
+      email: s.email || SITE_CONFIG.email,
+      priceRange: '₹₹',
+      areaServed: 'IN',
+    },
+    ...(faqs.length > 0
+      ? [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqs.map((f) => ({
+              '@type': 'Question',
+              name: f.question,
+              acceptedAnswer: { '@type': 'Answer', text: f.answer },
+            })),
+          },
+        ]
+      : []),
+  ];
 
   // Only show a map when the owner has supplied a real location.
   const embedSrc = mapsUrl.includes('google.com/maps/embed')
@@ -29,6 +70,10 @@ export default async function Contact() {
   const row = 'flex items-start gap-3';
   return (
     <div className="container-x py-12 md:py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactJsonLd).replace(/</g, '\\u003c') }}
+      />
       <h1 className="text-5xl md:text-6xl">Contact us</h1>
       <p className="mt-3 max-w-xl text-espresso/75">
         The quickest way to reach KAYATHI LABEL, ask about a piece or place an order is WhatsApp.
@@ -86,6 +131,21 @@ export default async function Contact() {
           )}
         </div>
       </div>
+
+      {faqs.length > 0 && (
+        <section aria-labelledby="faq-heading" className="mt-16 border-t border-espresso/15 pt-14">
+          <span className="text-xs uppercase tracking-[0.2em] text-burgundy">Helpful Info</span>
+          <h2 id="faq-heading" className="mt-1 text-3xl md:text-4xl">Frequently asked questions</h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            {faqs.map((f) => (
+              <div key={f.question} className="border border-espresso/15 bg-white p-6">
+                <h3 className="text-xl text-burgundy">{f.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-espresso/80">{f.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

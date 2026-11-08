@@ -1,0 +1,29 @@
+import Link from 'next/link';
+import { SITE_CONFIG } from '@/config/site';
+
+export const metadata = {
+  title: 'Privacy Policy',
+  description: 'How KAYATHI LABEL collects, uses, and protects customer contact and delivery information.',
+  alternates: { canonical: '/privacy-policy' },
+};
+
+export default function PrivacyPolicyPage() {
+  const policy = SITE_CONFIG.policies.privacyPolicy;
+  return (
+    <div className="container-x py-12 md:py-20">
+      <h1 className="max-w-3xl text-4xl md:text-5xl">{policy.title}</h1>
+      <p className="mt-2 text-sm text-espresso/60">Last updated: {policy.lastUpdated}</p>
+      <div className="mt-10 max-w-3xl divide-y divide-espresso/15 border-y border-espresso/15">
+        {policy.sections.map((sec) => (
+          <section key={sec.heading} className="py-7">
+            <h2 className="text-2xl">{sec.heading}</h2>
+            <p className="mt-2.5 whitespace-pre-line leading-relaxed text-espresso/85">{sec.body}</p>
+          </section>
+        ))}
+      </div>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link href="/contact" className="btn btn-outline">Contact us</Link>
+      </div>
+    </div>
+  );
+}

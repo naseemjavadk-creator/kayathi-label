@@ -37,17 +37,26 @@ export default function Footer({ settings }) {
         </div>
 
         <div>
-          <h3 className="mb-3 text-xl !text-gold">Follow us</h3>
+          <h3 className="mb-3 text-xl !text-gold">Follow &amp; Info</h3>
           <a href={s.instagram_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-ivory/85 hover:text-gold">
             <InstagramIcon /> {s.instagram_handle}
           </a>
-          <p className="mt-6 text-sm"><Link href="/about" className="text-ivory/85 hover:text-gold">About KAYATHI LABEL</Link></p>
+          <ul className="mt-5 space-y-2 text-sm text-ivory/85">
+            <li><Link href="/about" className="hover:text-gold">About KAYATHI LABEL</Link></li>
+            <li><Link href="/shipping-returns" className="hover:text-gold">Shipping &amp; returns</Link></li>
+            <li><Link href="/privacy-policy" className="hover:text-gold">Privacy policy</Link></li>
+            <li><Link href="/terms" className="hover:text-gold">Terms &amp; conditions</Link></li>
+          </ul>
         </div>
       </div>
-      <div className="border-t border-ivory/15">
-        <div className="container-x flex flex-wrap items-center justify-between gap-2 py-5 text-xs text-ivory/65">
+      <div className="border-t border-ivory/15 pb-20 md:pb-4">
+        <div className="container-x flex flex-wrap items-center justify-between gap-2 py-5 text-xs text-ivory/75">
           <p>© {new Date().getFullYear()} KAYATHI LABEL. All rights reserved.</p>
-          <Link href="/admin/login" className="hover:text-gold">Owner login</Link>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/shipping-returns" className="hover:text-gold">Shipping &amp; Returns</Link>
+            <Link href="/privacy-policy" className="hover:text-gold">Privacy</Link>
+            <Link href="/terms" className="hover:text-gold">Terms</Link>
+          </div>
         </div>
       </div>
     </footer>

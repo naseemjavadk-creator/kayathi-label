@@ -5,11 +5,19 @@ import { BagIcon } from '@/components/Icons';
 import { useCart } from './Cart';
 import { inr } from '@/lib/format';
 import { sortedImages } from '@/lib/images';
+import { isProductNew, hasRealDiscount } from '@/lib/data';
 
 export default function ProductCard({ p }) {
   const img = sortedImages(p)[0];
   const soldOut = !p.is_available || p.stock <= 0;
-  const badge = soldOut ? 'Sold out' : p.is_new ? 'New' : p.discount_percent > 0 ? `${p.discount_percent}% off` : null;
+  const isNew30d = Boolean(p.is_new) && isProductNew(p);
+  const discounted = hasRealDiscount(p);
+  const discountPct = discounted
+    ? p.discount_percent > 0
+      ? p.discount_percent
+      : Math.round(((Number(p.original_price) - Number(p.price)) / Number(p.original_price)) * 100)
+    : 0;
+  const badge = soldOut ? 'Sold out' : isNew30d ? 'New' : discountPct > 0 ? `${discountPct}% off` : null;
   const { addItem } = useCart();
 
   function handleQuickAdd(e) {

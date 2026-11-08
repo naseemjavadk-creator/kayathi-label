@@ -1,6 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { publicClient, getSettings, getComingSoon, sortedImages } from '@/lib/data';
+import {
+  publicClient,
+  getSettings,
+  getComingSoon,
+  sortedImages,
+  filterVisibleProducts,
+  isProductNew,
+  hasRealDiscount,
+} from '@/lib/data';
+import { SITE_CONFIG } from '@/config/site';
 import { loadPlayProducts } from '@/lib/playData';
 import { ComingSoonRow } from '@/components/site/ComingSoon';
 import BannerSlider from '@/components/site/BannerSlider';
@@ -13,6 +22,7 @@ import PlayTeaser from '@/components/site/PlayTeaser';
 
 export const dynamic = 'force-dynamic';
 const SEL = '*, product_images(url,sort_order)';
+const MIN_SECTION_ITEMS = SITE_CONFIG.minSectionProducts || 3;
 
 export default async function Home() {
   const db = publicClient();
@@ -22,23 +32,40 @@ export default async function Home() {
   const [cats, banners, fresh, featured, best, offers, covers, insta, playProducts] = await Promise.all([
     db.from('categories').select('id,name,slug,subcategories(id,name,slug,sort_order)').order('sort_order'),
     db.from('banners').select('*').eq('is_active', true).order('sort_order'),
-    pub().eq('is_new', true).order('created_at', { ascending: false }).limit(8),
-    pub().eq('is_featured', true).order('created_at', { ascending: false }).limit(8),
-    pub().eq('is_best_seller', true).order('created_at', { ascending: false }).limit(8),
-    pub().gt('discount_percent', 0).order('discount_percent', { ascending: false }).limit(8),
-    db.from('products').select('category_id, subcategory_id, is_available, stock, product_images(url,sort_order)').eq('is_published', true).limit(1000),
+    pub().eq('is_new', true).order('created_at', { ascending: false }).limit(24),
+    pub().eq('is_featured', true).order('created_at', { ascending: false }).limit(24),
+    pub().eq('is_best_seller', true).order('created_at', { ascending: false }).limit(24),
+    pub().gt('discount_percent', 0).order('discount_percent', { ascending: false }).limit(24),
+    db.from('products').select('id, name, sku, category_id, subcategory_id, is_available, stock, product_images(url,sort_order)').eq('is_published', true).limit(1000),
     db.from('instagram_posts').select('*').order('sort_order').limit(6),
     loadPlayProducts(),
   ]);
 
+  const visibleCovers = filterVisibleProducts(covers.data || []);
   // Only show collections and types that have something in stock.
-  const inStock = (covers.data || []).filter((p) => p.is_available && p.stock > 0);
+  const inStock = visibleCovers.filter((p) => p.is_available && p.stock > 0);
   const catsWithStock = new Set(inStock.map((p) => p.category_id));
   const subsWithStock = new Set(inStock.map((p) => p.subcategory_id));
   const categories = (cats.data || []).filter((c) => catsWithStock.has(c.id));
   const bannerList = banners.data || [];
-  const heroProduct = (featured.data || []).find((p) => sortedImages(p).length) || (fresh.data || []).find((p) => sortedImages(p).length);
-  const heroImage = heroProduct ? sortedImages(heroProduct)[0].url : null;
+
+  // Dedupe products across homepage sections so the same item does not repeat in every block.
+  const seenProductIds = new Set();
+  const takeSectionProducts = (rawList, predicate = () => true, max = 8) => {
+    const filtered = filterVisibleProducts(rawList || []).filter(
+      (p) => p && !seenProductIds.has(p.id) && predicate(p)
+    );
+    if (filtered.length < MIN_SECTION_ITEMS) return [];
+    const chosen = filtered.slice(0, max);
+    chosen.forEach((p) => seenProductIds.add(p.id));
+    return chosen;
+  };
+
+  const newArrivalsList = takeSectionProducts(fresh.data, (p) => Boolean(p.is_new) && isProductNew(p));
+  const featuredList = takeSectionProducts(featured.data, (p) => Boolean(p.is_featured));
+  const bestSellersList = takeSectionProducts(best.data, (p) => p.is_best_seller === true);
+  const specialOffersList = takeSectionProducts(offers.data, (p) => hasRealDiscount(p));
+
   const coverFor = (id) => {
     const p = inStock.find((x) => x.category_id === id && (x.product_images || []).length);
     return p ? sortedImages(p)[0].url : null;
@@ -113,10 +140,10 @@ export default async function Home() {
       )}
 
       <ComingSoonRow items={soon} whatsapp={settings.whatsapp} />
-      <ProductRow title="New arrivals" href="/new-arrivals" products={fresh.data} />
-      <ProductRow title="Featured pieces" href="/shop" products={featured.data} />
-      <ProductRow title="Best sellers" href="/shop" products={best.data} />
-      <ProductRow title="Special offers" href="/shop?sort=price_asc" products={offers.data} />
+      <ProductRow title="New arrivals" href="/new-arrivals" products={newArrivalsList} minItems={MIN_SECTION_ITEMS} />
+      <ProductRow title="Featured pieces" href="/shop" products={featuredList} minItems={MIN_SECTION_ITEMS} />
+      <ProductRow title="Best sellers" href="/shop" products={bestSellersList} minItems={MIN_SECTION_ITEMS} />
+      <ProductRow title="Special offers" href="/shop?sort=price_asc" products={specialOffersList} minItems={MIN_SECTION_ITEMS} />
       <PlayTeaser products={playProducts} whatsapp={settings.whatsapp} />
 
       <Reveal as="section" className="mt-6 bg-ivory-deep">

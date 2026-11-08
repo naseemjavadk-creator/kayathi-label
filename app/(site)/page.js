@@ -11,14 +11,16 @@ import {
   siteUrl,
 } from '@/lib/data';
 import { SITE_CONFIG } from '@/config/site';
+import { HERO_CONFIG } from '@/config/hero';
 import { loadPlayProducts } from '@/lib/playData';
 import { ComingSoonRow } from '@/components/site/ComingSoon';
-import BannerSlider from '@/components/site/BannerSlider';
+import HeroCarousel from '@/components/site/HeroCarousel';
+import HeroLegacy from '@/components/site/HeroLegacy';
+import CategoryTiles from '@/components/site/CategoryTiles';
 import ProductRow from '@/components/site/ProductRow';
 import Photo from '@/components/site/Photo';
 import { InstagramIcon } from '@/components/Icons';
 import Reveal from '@/components/site/Reveal';
-import Twinkles from '@/components/site/Twinkles';
 import PlayTeaser from '@/components/site/PlayTeaser';
 import TrustStrip from '@/components/site/TrustStrip';
 import Testimonials from '@/components/site/Testimonials';
@@ -74,6 +76,12 @@ export default async function Home() {
     return p ? sortedImages(p)[0].url : null;
   };
 
+  const coverBySlug = {};
+  (cats.data || []).forEach((c) => {
+    const imgUrl = coverFor(c.id);
+    if (imgUrl) coverBySlug[c.slug] = imgUrl;
+  });
+
   const dbInstagramTiles = (insta.data || []).map((p, idx) => ({
     id: p.id || `db-ig-${idx}`,
     imageUrl: p.image_url,
@@ -118,52 +126,17 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd).replace(/</g, '\\u003c') }}
       />
-      {bannerList.length > 0 ? (
-        <BannerSlider banners={bannerList} />
+      {HERO_CONFIG.useLegacyHero ? (
+        <HeroLegacy banners={bannerList} />
       ) : (
-        <section className="bg-burgundy text-ivory">
-          <div className="grid items-center md:grid-cols-2">
-            <div className="relative flex flex-col justify-center overflow-hidden px-6 py-12 md:px-14 md:py-14 lg:px-20">
-              <Twinkles />
-              <h1 className="relative z-10 max-w-lg !text-ivory text-5xl leading-[1.05] md:text-7xl">
-                {SITE_CONFIG.tagline}
-              </h1>
-              <p className="relative z-10 mt-4 max-w-md font-medium text-gold md:text-lg">
-                {SITE_CONFIG.valueProposition}
-              </p>
-              <p className="relative z-10 mt-3 max-w-md text-ivory/85 md:text-base">
-                Sarees, jewellery, bangles, rings and accessories from KAYATHI LABEL.
-              </p>
-              <div className="relative z-10 mt-9 flex flex-wrap gap-3">
-                <Link href="/shop" className="btn btn-gold">Shop now</Link>
-                <Link href="/new-arrivals" className="btn btn-outline-light">New arrivals</Link>
-                <Link href="#fun-zone" className="btn btn-outline-light">Fun zone</Link>
-              </div>
-            </div>
-            <div className="relative flex w-full items-center justify-center bg-burgundy">
-              <Link href="/shop" aria-label="Shop now" className="group relative z-20 block w-full cursor-pointer">
-                <Image
-                  src="/brand/hero-banner.jpg"
-                  alt="KAYATHI LABELS — Elegance in Every Thread"
-                  width={1024}
-                  height={559}
-                  priority
-                  sizes="(min-width: 1280px) 640px, (min-width: 768px) 50vw, 100vw"
-                  className="block h-auto w-full object-contain"
-                />
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-[65.8%] top-[80.3%] h-[7.8%] w-[18.1%] rounded-full transition duration-200 group-hover:bg-gold/20 group-hover:ring-2 group-hover:ring-gold group-active:scale-95"
-                />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <HeroCarousel dbBanners={bannerList} />
       )}
 
       <TrustStrip />
 
-      <Reveal as="section" className="container-x py-14 text-center md:py-20">
+      <CategoryTiles coverBySlug={coverBySlug} />
+
+      <Reveal as="section" className="container-x py-10 text-center md:py-14">
         <p className="mx-auto max-w-3xl font-serif text-2xl leading-relaxed md:text-3xl">{settings.home_intro}</p>
         <Link href="/shop" className="btn btn-primary mt-8">Shop now</Link>
       </Reveal>

@@ -64,7 +64,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="relative flex w-full items-center justify-center bg-burgundy">
-              <Link href="/shop" aria-label="Shop now" className="relative block w-full cursor-pointer">
+              <Link href="/shop" aria-label="Shop now" className="group relative z-20 block w-full cursor-pointer">
                 <Image
                   src="/brand/hero-banner.jpg"
                   alt="KAYATHI LABELS — Elegance in Every Thread"
@@ -73,6 +73,10 @@ export default async function Home() {
                   priority
                   sizes="(min-width: 768px) 50vw, 100vw"
                   className="block h-auto w-full object-contain"
+                />
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-[65.8%] top-[80.3%] h-[7.8%] w-[18.1%] rounded-full transition duration-200 group-hover:bg-gold/20 group-hover:ring-2 group-hover:ring-gold group-active:scale-95"
                 />
               </Link>
             </div>

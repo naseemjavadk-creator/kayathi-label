@@ -1,3 +1,22 @@
+// @ts-check
+
+/**
+ * @typedef {Object} AnnouncementBarConfig
+ * @property {boolean} enabled
+ * @property {string} text
+ * @property {string} [linkText]
+ * @property {string} [linkHref]
+ * @property {string} [expiresAt] - Optional ISO date string (YYYY-MM-DD)
+ * @property {string} storageKey - LocalStorage key for dismissal state
+ */
+
+/**
+ * @typedef {Object} NavItem
+ * @property {string} label
+ * @property {string} href
+ * @property {boolean} [highlight]
+ */
+
 export const SHOW_SAMPLE_PRODUCTS =
   process.env.NEXT_PUBLIC_SHOW_SAMPLE_PRODUCTS === 'true';
 
@@ -15,6 +34,75 @@ export const SITE_CONFIG = {
   showSampleProducts: SHOW_SAMPLE_PRODUCTS,
   minSectionProducts: 3,
   newBadgeDays: 30,
+
+  /** @type {AnnouncementBarConfig} */
+  announcementBar: {
+    enabled: true,
+    text: 'Handpicked Sarees & Jewellery • Order Easily on WhatsApp • Delivery Across India',
+    linkText: 'Shop New Arrivals →',
+    linkHref: '/new-arrivals',
+    expiresAt: '2028-12-31',
+    storageKey: 'kayathi_announcement_dismissed_v1',
+  },
+
+  /** @type {NavItem[]} */
+  navigation: [
+    { label: 'Sarees', href: '/category/sarees' },
+    { label: 'Jewellery', href: '/category/jewellery' },
+    { label: 'Bangles', href: '/category/bangles-bracelets' },
+    { label: 'Rings', href: '/category/rings' },
+    { label: 'Accessories', href: '/category/accessories' },
+    { label: 'New Arrivals', href: '/new-arrivals' },
+    { label: 'Gifts', href: '/shop?max=2500' },
+    { label: 'Fun Zone', href: '/play', highlight: true },
+  ],
+
+  socialLinks: {
+    instagramUrl: 'https://www.instagram.com/kayathilabel/',
+    instagramHandle: '@kayathilabel',
+    whatsappNumber: '+917907139297',
+    whatsappChannelUrl: '', // TODO (Owner): Add WhatsApp Channel invite URL if available
+  },
+
+  newsletter: {
+    eyebrow: 'VIP WHATSAPP & EMAIL UPDATES',
+    heading: 'Be the First to See New Saree & Jewellery Drops',
+    description:
+      'Join our boutique list for early previews of festive weaves, temple jewellery restocks, and private offers—sent directly on WhatsApp.',
+    inputPlaceholder: 'Enter your WhatsApp number or email',
+    buttonLabel: 'Join Updates on WhatsApp',
+    privacyNote: 'No spam, ever. Joins via your WhatsApp app so you stay in full control.',
+    prefillMessagePrefix:
+      'Hello KAYATHI LABEL! Please add me to your new arrival and festive collection updates. My contact is:',
+  },
+
+  footerLinks: {
+    shop: [
+      { label: 'Sarees', href: '/category/sarees' },
+      { label: 'Jewellery', href: '/category/jewellery' },
+      { label: 'Bangles & Bracelets', href: '/category/bangles-bracelets' },
+      { label: 'Rings', href: '/category/rings' },
+      { label: 'Accessories', href: '/category/accessories' },
+      { label: 'New Arrivals', href: '/new-arrivals' },
+      { label: 'Gifts Under ₹2,500', href: '/shop?max=2500' },
+    ],
+    help: [
+      { label: 'FAQ', href: '/faq' },
+      { label: 'Shipping & Returns', href: '/shipping-returns' },
+      { label: 'Size Guide', href: '/size-guide' },
+      { label: 'Contact Us', href: '/contact' },
+    ],
+    company: [
+      { label: 'About KAYATHI LABEL', href: '/about' },
+      { label: 'Fun Zone (Spin & Quiz)', href: '/play' },
+      { label: 'Shop All Collections', href: '/shop' },
+    ],
+    policies: [
+      { label: 'Terms & Conditions', href: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy-policy' },
+      { label: 'Shipping & Returns', href: '/shipping-returns' },
+    ],
+  },
 
   wheelDiscount: {
     enabled: false,
@@ -140,7 +228,46 @@ export const SITE_CONFIG = {
       answer:
         'We offer easy exchanges for items that arrive damaged, defective, or incorrect. Please record an unboxing video when opening the parcel and contact us on WhatsApp within 48 hours of delivery.',
     },
+    {
+      question: 'How do I choose the right bangle or ring size?',
+      answer:
+        'Measure the inner diameter of an existing bangle that fits you well and compare it with our Size Guide (2.4, 2.6, 2.8, or 2.10). Many of our statement rings feature an adjustable band—message us on WhatsApp if you need help measuring.',
+    },
   ],
+
+  sizeGuide: {
+    title: 'Size & Fit Guide',
+    lastUpdated: 'November 2026',
+    intro:
+      'TODO (Owner: review measurements): Use this guide to find your ideal fit for KAYATHI LABEL sarees, bangles, and rings. Need personal sizing help? Message us on WhatsApp (+91 7907139297).',
+    sarees: {
+      heading: 'Saree & Blouse Length Guide',
+      notes: [
+        'Standard Saree Length: 5.5 metres (comfortable for all heights and draping styles).',
+        'Unstitched Blouse Piece (when included): 0.8 metres (80 cm). Check each product page to confirm whether an unstitched blouse piece is included.',
+        'Width (Panna): Approximately 44–47 inches.',
+      ],
+    },
+    bangles: {
+      heading: 'Indian Bangle Size Chart',
+      howToMeasure:
+        'Take a bangle that fits you comfortably and measure its INNER diameter across the centre using a ruler (in inches or millimetres).',
+      rows: [
+        { size: '2.2 (XS)', innerDiameterIn: '2.125 in', innerDiameterMm: '54.0 mm', circumferenceIn: '6.67 in' },
+        { size: '2.4 (S)', innerDiameterIn: '2.25 in', innerDiameterMm: '57.2 mm', circumferenceIn: '7.06 in' },
+        { size: '2.6 (M)', innerDiameterIn: '2.375 in', innerDiameterMm: '60.3 mm', circumferenceIn: '7.46 in' },
+        { size: '2.8 (L)', innerDiameterIn: '2.50 in', innerDiameterMm: '63.5 mm', circumferenceIn: '7.85 in' },
+        { size: '2.10 (XL)', innerDiameterIn: '2.625 in', innerDiameterMm: '66.7 mm', circumferenceIn: '8.25 in' },
+      ],
+    },
+    rings: {
+      heading: 'Ring Sizing Notes',
+      notes: [
+        'Most of our traditional & temple-inspired statement rings come with a discreet adjustable band that fits Indian ring sizes 10 to 18 comfortably.',
+        'For fixed-size rings, the exact Indian size or inner diameter (mm) is listed on the product page.',
+      ],
+    },
+  },
 
   policies: {
     shippingReturns: {

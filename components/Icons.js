@@ -112,3 +112,26 @@ export const ChevronRightIcon = ({ className = 'h-5 w-5' }) => (
     <path d="M9 18l6-6-6-6" />
   </svg>
 );
+
+export const SearchIcon = ({ className = 'h-5 w-5' }) => (
+  <svg {...base} viewBox="0 0 24 24" {...stroke} className={className}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M20 20l-3.8-3.8" />
+  </svg>
+);
+
+export const HeartIcon = ({ className = 'h-5 w-5', filled = false }) => (
+  <svg
+    {...base}
+    viewBox="0 0 24 24"
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth={1.6}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M12 20.5s-7-4.35-9.2-8.4C1.1 8.9 3.1 5 6.9 5c2.1 0 3.7 1.1 5.1 2.8C13.4 6.1 15 5 17.1 5c3.8 0 5.8 3.9 4.1 7.1-2.2 4.05-9.2 8.4-9.2 8.4z" />
+  </svg>
+);
+

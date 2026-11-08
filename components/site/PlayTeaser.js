@@ -89,8 +89,8 @@ export function FunZonePlayground({ products = [], whatsapp = '', defaultGame = 
 
           <div className="mx-auto max-w-3xl">
             {activeGame === 'quiz' && <QuizGame products={products} whatsapp={whatsapp} />}
-            {activeGame === 'spin' && <SpinWheel products={products} />}
-            {activeGame === 'memory' && <MemoryGame />}
+            {activeGame === 'spin' && <SpinWheel products={products} whatsapp={whatsapp} />}
+            {activeGame === 'memory' && <MemoryGame whatsapp={whatsapp} />}
           </div>
         </div>
       )}

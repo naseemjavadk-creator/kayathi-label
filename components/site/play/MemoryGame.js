@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { SITE_CONFIG } from '@/config/site';
+import { waLink } from '@/lib/whatsapp';
 import { burst } from '@/lib/burst';
 
 const COLOURS = [
@@ -9,7 +11,7 @@ const COLOURS = [
 ];
 const shuffled = () => [...COLOURS, ...COLOURS].map((c) => ({ c, r: Math.random() })).sort((a, b) => a.r - b.r);
 
-export default function MemoryGame() {
+export default function MemoryGame({ whatsapp = SITE_CONFIG.whatsapp }) {
   const [cards, setCards] = useState([]); // filled after load so server and browser agree
   const [open, setOpen] = useState([]);
   const [matched, setMatched] = useState([]);
@@ -67,8 +69,19 @@ export default function MemoryGame() {
           <h2 className="text-4xl">You matched them all</h2>
           <p className="mb-4 mt-1 text-sm text-espresso/65">Finished in {moves} moves.</p>
           <div className="flex flex-wrap gap-3">
+            <Link href="/category/sarees" className="btn btn-primary">See your picks</Link>
+            <a
+              href={waLink(
+                whatsapp || SITE_CONFIG.whatsapp,
+                'Hello KAYATHI LABEL! I matched all the colours in the Fun Zone and would like to order from your collection.'
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-gold"
+            >
+              Order on WhatsApp
+            </a>
             <button type="button" className="btn btn-outline" onClick={reset}>Play again</button>
-            <Link href="/shop" className="btn btn-primary">Browse the collection</Link>
           </div>
         </div>
       )}

@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import ProductCard from '@/components/site/ProductCard';
 import { waLink } from '@/lib/whatsapp';
+import { SITE_CONFIG } from '@/config/site';
 import { inr } from '@/lib/format';
 import { burst } from '@/lib/burst';
 
@@ -65,32 +67,48 @@ export default function QuizGame({ products, whatsapp }) {
     );
   }
 
-  const msg = [
-    'Hello KAYATHI LABEL!', '', 'I tried your style quiz and liked these pieces:', '',
-    ...picks.map((p, n) => `${n + 1}. ${p.name} (ID: ${p.sku}) ${inr(p.price)}`),
-    '', 'Please tell me more and confirm availability.',
-  ].join('\n');
+  const matchedCategorySlug = (CATS[ans[0]] && CATS[ans[0]][0]) || 'sarees';
+  const categoryHref = `/category/${matchedCategorySlug}`;
+
+  const msg = picks.length
+    ? [
+        'Hello KAYATHI LABEL!',
+        '',
+        'I would like to order this from my Style Quiz picks:',
+        '',
+        ...picks.map((p, n) => `${n + 1}. ${p.name} (ID: ${p.sku}) — ${inr(p.price)}`),
+        '',
+        'Please confirm availability and delivery details.',
+      ].join('\n')
+    : `Hello KAYATHI LABEL! I completed the Style Quiz (${ans.join(', ')}) and would like to order from your ${matchedCategorySlug} collection.`;
 
   return (
     <div className="qa-in">
       <h2 className="text-4xl">Your style picks</h2>
-      <p className="mb-6 mt-1 text-sm text-espresso/65">Chosen from what is in stock right now.</p>
-      {picks.length ? (
-        <>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {picks.map((p) => (<ProductCard key={p.id} p={p} />))}
-          </div>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <a href={waLink(whatsapp, msg)} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Ask about these on WhatsApp</a>
-            <button type="button" className="btn btn-outline" onClick={() => setAns([])}>Try again</button>
-          </div>
-        </>
-      ) : (
-        <>
-          <p>Nothing in stock matches yet.</p>
-          <button type="button" className="btn btn-outline mt-4" onClick={() => setAns([])}>Try again</button>
-        </>
+      <p className="mb-6 mt-1 text-sm text-espresso/65">Chosen for your style and occasion preferences.</p>
+      {picks.length > 0 && (
+        <div className="mb-7 grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {picks.map((p) => (
+            <ProductCard key={p.id} p={p} />
+          ))}
+        </div>
       )}
+      <div className="flex flex-wrap gap-3">
+        <Link href={categoryHref} className="btn btn-primary">
+          See your picks
+        </Link>
+        <a
+          href={waLink(whatsapp || SITE_CONFIG.whatsapp, msg)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-gold"
+        >
+          Order on WhatsApp
+        </a>
+        <button type="button" className="btn btn-outline" onClick={() => setAns([])}>
+          Try again
+        </button>
+      </div>
     </div>
   );
 }

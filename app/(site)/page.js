@@ -27,6 +27,7 @@ import Reveal from '@/components/site/Reveal';
 import PlayTeaser from '@/components/site/PlayTeaser';
 import TrustStrip from '@/components/site/TrustStrip';
 import Testimonials from '@/components/site/Testimonials';
+import WhatsAppSignup from '@/components/site/WhatsAppSignup';
 
 export const dynamic = 'force-dynamic';
 const SEL = '*, product_images(url,sort_order)';
@@ -224,6 +225,8 @@ export default async function Home() {
           </ul>
         )}
       </Reveal>
+
+      <WhatsAppSignup whatsapp={settings.whatsapp} />
     </>
   );
 }

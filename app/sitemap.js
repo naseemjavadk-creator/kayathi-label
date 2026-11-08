@@ -18,6 +18,8 @@ export default async function sitemap() {
     '/about',
     '/contact',
     '/play',
+    '/faq',
+    '/size-guide',
     '/shipping-returns',
     '/privacy-policy',
     '/terms',

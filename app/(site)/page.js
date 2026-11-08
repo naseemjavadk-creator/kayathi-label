@@ -17,6 +17,9 @@ import { ComingSoonRow } from '@/components/site/ComingSoon';
 import HeroCarousel from '@/components/site/HeroCarousel';
 import HeroLegacy from '@/components/site/HeroLegacy';
 import CategoryTiles from '@/components/site/CategoryTiles';
+import ThemedCollections from '@/components/site/ThemedCollections';
+import PromoBanner from '@/components/site/PromoBanner';
+import OccasionTiles from '@/components/site/OccasionTiles';
 import ProductRow from '@/components/site/ProductRow';
 import Photo from '@/components/site/Photo';
 import { InstagramIcon } from '@/components/Icons';
@@ -41,7 +44,7 @@ export default async function Home() {
     pub().eq('is_featured', true).order('created_at', { ascending: false }).limit(24),
     pub().eq('is_best_seller', true).order('created_at', { ascending: false }).limit(24),
     pub().gt('discount_percent', 0).order('discount_percent', { ascending: false }).limit(24),
-    db.from('products').select('id, name, sku, category_id, subcategory_id, is_available, stock, product_images(url,sort_order)').eq('is_published', true).limit(1000),
+    db.from('products').select('id, name, slug, sku, price, category_id, subcategory_id, is_available, stock, product_images(url,sort_order)').eq('is_published', true).limit(1000),
     db.from('instagram_posts').select('*').order('sort_order').limit(6),
     loadPlayProducts(),
   ]);
@@ -165,10 +168,13 @@ export default async function Home() {
       )}
 
       <ComingSoonRow items={soon} whatsapp={settings.whatsapp} />
+      <ThemedCollections products={inStock} categories={cats.data || []} />
       <ProductRow title="New arrivals" href="/new-arrivals" products={newArrivalsList} minItems={MIN_SECTION_ITEMS} />
       <ProductRow title="Featured pieces" href="/shop" products={featuredList} minItems={MIN_SECTION_ITEMS} />
+      <PromoBanner whatsapp={settings.whatsapp} />
       <ProductRow title="Best sellers" href="/shop" products={bestSellersList} minItems={MIN_SECTION_ITEMS} />
       <ProductRow title="Special offers" href="/shop?sort=price_asc" products={specialOffersList} minItems={MIN_SECTION_ITEMS} />
+      <OccasionTiles />
       <PlayTeaser products={playProducts} whatsapp={settings.whatsapp} />
       <Testimonials />
 

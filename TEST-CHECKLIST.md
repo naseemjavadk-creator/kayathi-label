@@ -50,3 +50,26 @@ Run through this after setup (`npm run dev`) and again after deploying. Tick eac
 | 34 | Dashboard > Coming soon > add "Nose Pins" with a note | Gold ticker appears at the very top of every page and a "Coming soon" row appears on the homepage |
 | 35 | Tap Notify me on a card | WhatsApp opens with "Please let me know when … arrives" |
 | 36 | Hide or delete the entry | Ticker and row disappear (with none left, nothing is shown) |
+
+## Quick add
+
+| # | Test | Expected |
+|---|---|---|
+| 37 | Dashboard > Quick add, choose 3 photos, set a category, type name and price for each, Save all | 3 products appear in Products and on the website with their photos |
+| 38 | Leave a name empty and Save all | Row is marked in red with a message; nothing is half-saved |
+
+## WhatsApp link preview
+
+| # | Test | Expected |
+|---|---|---|
+| 39 | Order a product with a photo on WhatsApp (send the message to yourself or a friend) | The link in the message shows a card with the product photo, name and price |
+| 40 | Paste a product link at https://developers.facebook.com/tools/debug/ | Shows the title, price and image with no errors |
+
+## Delivery details
+
+| # | Test | Expected |
+|---|---|---|
+| 41 | On a product page fill name, address, city and a 6-digit PIN, then tap Order on WhatsApp | The message has a "Delivery details" section with those lines |
+| 42 | Leave the delivery fields empty and order | The message has no delivery section (still works) |
+| 43 | Reload the product page | The fields are filled in again from this device |
+| 44 | Type 123 in the PIN field | A hint says a PIN code has 6 digits |

@@ -5,6 +5,7 @@ import { supabaseBrowser } from '@/lib/supabase/client';
 
 const LINKS = [
   { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/quick-add', label: 'Quick add' },
   { href: '/admin/products', label: 'Products' },
   { href: '/admin/categories', label: 'Categories' },
   { href: '/admin/inventory', label: 'Inventory' },

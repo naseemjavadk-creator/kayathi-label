@@ -6,13 +6,27 @@ import BackToTop from '@/components/site/BackToTop';
 import AnnouncementBar from '@/components/site/AnnouncementBar';
 import { CartProvider } from '@/components/site/Cart';
 import { WishlistProvider } from '@/components/site/Wishlist';
-import { getSettings, getComingSoon } from '@/lib/data';
+import {
+  getSettings,
+  getComingSoon,
+  getActiveTaxonomy,
+  filterNavigation,
+  filterFooterShopLinks,
+} from '@/lib/data';
+import { SITE_CONFIG } from '@/config/site';
 import { ComingSoonTicker } from '@/components/site/ComingSoon';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SiteLayout({ children }) {
-  const [settings, soon] = await Promise.all([getSettings(), getComingSoon()]);
+  const [settings, soon, taxonomy] = await Promise.all([
+    getSettings(),
+    getComingSoon(),
+    getActiveTaxonomy(),
+  ]);
+  const navItems = filterNavigation(SITE_CONFIG.navigation, taxonomy);
+  const footerShopLinks = filterFooterShopLinks(SITE_CONFIG.footerLinks?.shop || [], taxonomy);
+
   return (
     <CartProvider whatsapp={settings.whatsapp}>
       <WishlistProvider>
@@ -22,9 +36,9 @@ export default async function SiteLayout({ children }) {
         </a>
         <AnnouncementBar />
         <ComingSoonTicker items={soon} />
-        <Header settings={settings} />
+        <Header settings={settings} navItems={navItems} />
         <main id="main">{children}</main>
-        <Footer settings={settings} />
+        <Footer settings={settings} shopLinks={footerShopLinks} />
         <FloatingWhatsApp number={settings.whatsapp} instagram={settings.instagram_url} />
         <BackToTop />
       </WishlistProvider>

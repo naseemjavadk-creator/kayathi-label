@@ -7,8 +7,24 @@ import { OCCASION_TILES } from '@/config/collections';
  * Shop by Occasion tiles (Wedding, Festive, Daily Wear, Gifting)
  * Controlled from `/config/collections.js` and linked to existing shop/category routes.
  */
-export default function OccasionTiles() {
-  if (!OCCASION_TILES || OCCASION_TILES.length === 0) return null;
+export default function OccasionTiles({ activeSlugs = null, hasGiftsUnder2500 = true }) {
+  const slugSet = activeSlugs ? new Set(activeSlugs) : null;
+  const jewelleryActive = slugSet
+    ? slugSet.has('jewellery') || slugSet.has('bangles-bracelets') || slugSet.has('rings')
+    : true;
+
+  const visibleTiles = (OCCASION_TILES || []).filter((tile) => {
+    if (!slugSet) return true;
+    if (tile.href === '/shop?max=2500') return hasGiftsUnder2500;
+    if (tile.href?.startsWith('/category/')) {
+      const slug = tile.href.replace('/category/', '').split('?')[0];
+      if (slug === 'jewellery') return jewelleryActive;
+      return slugSet.has(slug);
+    }
+    return true;
+  });
+
+  if (visibleTiles.length === 0) return null;
 
   return (
     <Reveal as="section" className="container-x py-12 md:py-16">
@@ -28,7 +44,7 @@ export default function OccasionTiles() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
-        {OCCASION_TILES.map((tile) => (
+        {visibleTiles.map((tile) => (
           <Link
             key={tile.id}
             href={tile.href}

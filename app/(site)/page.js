@@ -51,11 +51,12 @@ export default async function Home() {
   ]);
 
   const visibleCovers = filterVisibleProducts(covers.data || []);
-  // Only show collections and types that have something in stock.
   const inStock = visibleCovers.filter((p) => p.is_available && p.stock > 0);
-  const catsWithStock = new Set(inStock.map((p) => p.category_id));
-  const subsWithStock = new Set(inStock.map((p) => p.subcategory_id));
-  const categories = (cats.data || []).filter((c) => catsWithStock.has(c.id));
+  const catsWithProducts = new Set(visibleCovers.map((p) => p.category_id).filter(Boolean));
+  const subsWithProducts = new Set(visibleCovers.map((p) => p.subcategory_id).filter(Boolean));
+  const categories = (cats.data || []).filter((c) => catsWithProducts.has(c.id));
+  const activeCategorySlugs = categories.map((c) => c.slug);
+  const hasGiftsUnder2500 = visibleCovers.some((p) => Number(p.price) <= 2500);
   const bannerList = banners.data || [];
 
   // Dedupe products across homepage sections so the same item does not repeat in every block.
@@ -76,7 +77,7 @@ export default async function Home() {
   const specialOffersList = takeSectionProducts(offers.data, (p) => hasRealDiscount(p));
 
   const coverFor = (id) => {
-    const p = inStock.find((x) => x.category_id === id && (x.product_images || []).length);
+    const p = visibleCovers.find((x) => x.category_id === id && (x.product_images || []).length);
     return p ? sortedImages(p)[0].url : null;
   };
 
@@ -137,7 +138,11 @@ export default async function Home() {
 
       <HeroCarousel dbBanners={[]} />
 
-      <CategoryTiles coverBySlug={coverBySlug} />
+      <CategoryTiles
+        coverBySlug={coverBySlug}
+        activeSlugs={activeCategorySlugs}
+        hasGiftsUnder2500={hasGiftsUnder2500}
+      />
 
       <Reveal as="section" className="container-x py-10 text-center md:py-14">
         <p className="mx-auto max-w-3xl font-serif text-2xl leading-relaxed md:text-3xl">{settings.home_intro}</p>
@@ -157,7 +162,7 @@ export default async function Home() {
                   <h3 className="mt-3 text-xl">{c.name}</h3>
                 </Link>
                 <ul className="mt-1 space-y-0.5 text-sm text-espresso/70">
-                  {[...(c.subcategories || [])].filter((s) => subsWithStock.has(s.id)).sort((a, b) => a.sort_order - b.sort_order).slice(0, 4).map((s) => (
+                  {[...(c.subcategories || [])].filter((s) => subsWithProducts.has(s.id)).sort((a, b) => a.sort_order - b.sort_order).slice(0, 4).map((s) => (
                     <li key={s.slug}><Link href={`/category/${c.slug}?sub=${s.slug}`} className="hover:text-burgundy">{s.name}</Link></li>
                   ))}
                 </ul>
@@ -174,7 +179,7 @@ export default async function Home() {
       <PromoBanner whatsapp={settings.whatsapp} />
       <ProductRow title="Best sellers" href="/shop" products={bestSellersList} minItems={MIN_SECTION_ITEMS} />
       <ProductRow title="Special offers" href="/shop?sort=price_asc" products={specialOffersList} minItems={MIN_SECTION_ITEMS} />
-      <OccasionTiles />
+      <OccasionTiles activeSlugs={activeCategorySlugs} hasGiftsUnder2500={hasGiftsUnder2500} />
       <PlayTeaser products={playProducts} whatsapp={settings.whatsapp} />
       <Testimonials />
 

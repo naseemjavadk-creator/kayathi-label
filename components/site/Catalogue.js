@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { publicClient, filterVisibleProducts } from '@/lib/data';
+import { publicClient, filterVisibleProducts, getActiveTaxonomy } from '@/lib/data';
 import ProductCard from './ProductCard';
 
 const clean = (s) => String(s || '').replace(/[%,()*\\]/g, ' ').trim().slice(0, 60);
@@ -16,7 +16,7 @@ function FilterForm({ basePath, cats, scopeCat, sp, colours, sizes }) {
         <label className="label" htmlFor="q">Search by name</label>
         <input id="q" name="q" type="search" defaultValue={sp.q || ''} className="field" />
       </div>
-      {basePath === '/shop' && (
+      {basePath === '/shop' && cats.length > 0 && (
         <div>
           <label className="label" htmlFor="category">Category</label>
           <select id="category" name="category" defaultValue={sp.category || ''} className="field">
@@ -82,11 +82,13 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
   const db = publicClient();
   const sp = searchParams;
 
-  const { data: catData } = await db
-    .from('categories')
-    .select('id,name,slug,subcategories(id,name,slug,sort_order)')
-    .order('sort_order');
+  const [{ data: catData }, taxonomy] = await Promise.all([
+    db.from('categories').select('id,name,slug,subcategories(id,name,slug,sort_order)').order('sort_order'),
+    getActiveTaxonomy(),
+  ]);
   const cats = catData || [];
+  const activeCatSlugs = new Set(taxonomy.activeCategorySlugs || []);
+  const filterCats = cats.filter((c) => activeCatSlugs.has(c.slug) || c.slug === sp.category);
 
   const scopeSlug = categorySlug || sp.category || null;
   const scopeCat = scopeSlug ? cats.find((c) => c.slug === scopeSlug) || null : null;
@@ -94,6 +96,9 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
   const sub = scopeCat ? (scopeCat.subcategories || []).find((s) => s.slug === sp.sub) : null;
 
   const isJewelleryGroup = ['jewellery', 'bangles-bracelets', 'rings'].includes(scopeCat?.slug);
+  const showBanglesTab = activeCatSlugs.has('bangles-bracelets') || scopeCat?.slug === 'bangles-bracelets';
+  const showRingsTab = activeCatSlugs.has('rings') || scopeCat?.slug === 'rings';
+  const showJewelleryGroupTabs = isJewelleryGroup && (showBanglesTab || showRingsTab);
   const jewelleryCatIds = cats
     .filter((c) => ['jewellery', 'bangles-bracelets', 'rings'].includes(c.slug))
     .map((c) => c.id);
@@ -117,10 +122,10 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
   const colours = [...new Set(opts.flatMap((o) => o.colours || []))].sort();
   const sizes = [...new Set(opts.flatMap((o) => o.sizes || []))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-  // A type (like Nose Pins) is listed only while it has at least one product in stock.
-  const inStockSubs = new Set(opts.filter((o) => o.is_available && o.stock > 0).map((o) => o.subcategory_id));
+  // A type (like Nose Pins) is listed only while it has at least one visible product.
+  const hasProductSubs = new Set(opts.map((o) => o.subcategory_id).filter(Boolean));
   const view = scopeCat
-    ? { ...scopeCat, subcategories: (scopeCat.subcategories || []).filter((s) => inStockSubs.has(s.id) || s.id === sub?.id) }
+    ? { ...scopeCat, subcategories: (scopeCat.subcategories || []).filter((s) => hasProductSubs.has(s.id) || s.id === sub?.id) }
     : null;
 
   let query = scoped(db.from('products').select('*, product_images(url,sort_order)'));
@@ -146,7 +151,7 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
       <div className="mb-8">
         <h1 className="text-4xl md:text-5xl">{heading}</h1>
         {intro && <p className="mt-3 max-w-2xl text-espresso/75">{intro}</p>}
-        {isJewelleryGroup && (
+        {showJewelleryGroupTabs && (
           <ul className="mt-5 flex flex-wrap gap-2">
             <li>
               <Link
@@ -160,30 +165,34 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
                 All Jewellery
               </Link>
             </li>
-            <li>
-              <Link
-                href="/category/bangles-bracelets"
-                className={`border px-3 py-1.5 text-sm ${
-                  scopeCat?.slug === 'bangles-bracelets'
-                    ? 'border-burgundy bg-burgundy text-ivory'
-                    : 'border-espresso/25 hover:border-burgundy'
-                }`}
-              >
-                Bangles &amp; Bracelets
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/category/rings"
-                className={`border px-3 py-1.5 text-sm ${
-                  scopeCat?.slug === 'rings'
-                    ? 'border-burgundy bg-burgundy text-ivory'
-                    : 'border-espresso/25 hover:border-burgundy'
-                }`}
-              >
-                Rings
-              </Link>
-            </li>
+            {showBanglesTab && (
+              <li>
+                <Link
+                  href="/category/bangles-bracelets"
+                  className={`border px-3 py-1.5 text-sm ${
+                    scopeCat?.slug === 'bangles-bracelets'
+                      ? 'border-burgundy bg-burgundy text-ivory'
+                      : 'border-espresso/25 hover:border-burgundy'
+                  }`}
+                >
+                  Bangles &amp; Bracelets
+                </Link>
+              </li>
+            )}
+            {showRingsTab && (
+              <li>
+                <Link
+                  href="/category/rings"
+                  className={`border px-3 py-1.5 text-sm ${
+                    scopeCat?.slug === 'rings'
+                      ? 'border-burgundy bg-burgundy text-ivory'
+                      : 'border-espresso/25 hover:border-burgundy'
+                  }`}
+                >
+                  Rings
+                </Link>
+              </li>
+            )}
           </ul>
         )}
         {view && view.subcategories.length > 0 && (
@@ -205,11 +214,11 @@ export default async function Catalogue({ searchParams = {}, categorySlug = null
           <details className="border border-espresso/20 bg-white p-4 lg:hidden">
             <summary className="cursor-pointer text-sm">Search and filter</summary>
             <div className="mt-4">
-              <FilterForm basePath={basePath} cats={cats} scopeCat={view} sp={sp} colours={colours} sizes={sizes} />
+              <FilterForm basePath={basePath} cats={filterCats} scopeCat={view} sp={sp} colours={colours} sizes={sizes} />
             </div>
           </details>
           <div className="hidden lg:block">
-            <FilterForm basePath={basePath} cats={cats} scopeCat={view} sp={sp} colours={colours} sizes={sizes} />
+            <FilterForm basePath={basePath} cats={filterCats} scopeCat={view} sp={sp} colours={colours} sizes={sizes} />
           </div>
         </aside>
 

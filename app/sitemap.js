@@ -6,10 +6,12 @@ export default async function sitemap() {
   const base = siteUrl();
   const db = publicClient();
   const [{ data: products }, { data: cats }] = await Promise.all([
-    db.from('products').select('name,sku,slug,updated_at').eq('is_published', true),
-    db.from('categories').select('slug,subcategories(slug)'),
+    db.from('products').select('name,sku,slug,category_id,subcategory_id,updated_at').eq('is_published', true),
+    db.from('categories').select('id,slug,subcategories(id,slug)'),
   ]);
   const visibleProducts = filterVisibleProducts(products || []);
+  const activeCatIds = new Set(visibleProducts.map((p) => p.category_id).filter(Boolean));
+  const activeSubIds = new Set(visibleProducts.map((p) => p.subcategory_id).filter(Boolean));
   const fixed = [
     '',
     '/shop',
@@ -25,14 +27,18 @@ export default async function sitemap() {
     '/terms',
   ].map((p) => ({ url: `${base}${p}`, changeFrequency: 'weekly', priority: p === '' ? 1.0 : 0.8 }));
 
-  const categoryEntries = (cats || []).flatMap((c) => [
-    { url: `${base}/category/${c.slug}`, changeFrequency: 'weekly', priority: 0.9 },
-    ...(c.subcategories || []).map((s) => ({
-      url: `${base}/category/${c.slug}?sub=${s.slug}`,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    })),
-  ]);
+  const categoryEntries = (cats || [])
+    .filter((c) => activeCatIds.has(c.id))
+    .flatMap((c) => [
+      { url: `${base}/category/${c.slug}`, changeFrequency: 'weekly', priority: 0.9 },
+      ...(c.subcategories || [])
+        .filter((s) => activeSubIds.has(s.id))
+        .map((s) => ({
+          url: `${base}/category/${c.slug}?sub=${s.slug}`,
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        })),
+    ]);
 
   return [
     ...fixed,

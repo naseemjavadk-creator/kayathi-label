@@ -11,7 +11,8 @@ import { SITE_CONFIG } from '@/config/site';
 
 export const NAV = SITE_CONFIG.navigation;
 
-export default function Header({ settings = {} }) {
+export default function Header({ settings = {}, navItems = NAV }) {
+  const items = navItems;
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -41,7 +42,7 @@ export default function Header({ settings = {} }) {
         }`}
       >
         <div className="flex w-28 items-center gap-2 lg:w-56">
-          <MobileNav items={NAV} settings={settings} />
+          <MobileNav items={items} settings={settings} />
           <form action="/shop" className="hidden lg:flex lg:items-center lg:gap-1.5">
             <SearchIcon className="h-4 w-4 text-gold/85" />
             <input
@@ -122,7 +123,7 @@ export default function Header({ settings = {} }) {
             scrolled ? 'py-2' : 'py-3'
           }`}
         >
-          {NAV.map((i) => {
+          {items.map((i) => {
             const hasChildren = Array.isArray(i.children) && i.children.length > 0;
             const isOpen = openDropdown === i.label;
 

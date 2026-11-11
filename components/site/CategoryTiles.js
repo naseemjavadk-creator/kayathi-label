@@ -9,8 +9,15 @@ import { CATEGORY_TILES } from '@/config/collections';
  * - 6-column responsive grid on desktop
  * - Hover zoom and automatic branded burgundy/gold fallback via Photo component
  */
-export default function CategoryTiles({ coverBySlug = {} }) {
-  if (!CATEGORY_TILES || CATEGORY_TILES.length === 0) return null;
+export default function CategoryTiles({ coverBySlug = {}, activeSlugs = null, hasGiftsUnder2500 = true }) {
+  const slugSet = activeSlugs ? new Set(activeSlugs) : null;
+  const visibleTiles = (CATEGORY_TILES || []).filter((tile) => {
+    if (!slugSet) return true;
+    if (tile.slug === 'gifts') return hasGiftsUnder2500;
+    return slugSet.has(tile.slug);
+  });
+
+  if (visibleTiles.length === 0) return null;
 
   return (
     <Reveal as="section" className="container-x py-12 md:py-16">
@@ -30,7 +37,7 @@ export default function CategoryTiles({ coverBySlug = {} }) {
       </div>
 
       <div className="-mx-5 flex gap-4 overflow-x-auto px-5 pb-3 snap-x snap-mandatory md:mx-0 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-6">
-        {CATEGORY_TILES.map((tile) => {
+        {visibleTiles.map((tile) => {
           const resolvedImage = coverBySlug[tile.slug] || tile.imageUrl || '';
           return (
             <Link

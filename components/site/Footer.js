@@ -4,9 +4,10 @@ import { InstagramIcon, WhatsAppIcon, MailIcon, PhoneIcon } from '@/components/I
 import { waLink, GENERAL_MESSAGE } from '@/lib/whatsapp';
 import { SITE_CONFIG } from '@/config/site';
 
-export default function Footer({ settings = {} }) {
+export default function Footer({ settings = {}, shopLinks }) {
   const s = settings;
   const links = SITE_CONFIG.footerLinks;
+  const visibleShopLinks = shopLinks !== undefined ? shopLinks : links?.shop || [];
   const email = s.email || SITE_CONFIG.email;
   const phone = s.phone || SITE_CONFIG.phone;
   const whatsapp = s.whatsapp || SITE_CONFIG.whatsapp;
@@ -15,7 +16,7 @@ export default function Footer({ settings = {} }) {
 
   return (
     <footer className="mt-10 bg-logo text-ivory">
-      <div className="container-x grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-5">
+      <div className={`container-x grid gap-10 py-14 sm:grid-cols-2 ${visibleShopLinks.length > 0 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
         {/* Column 1: Brand, Tagline, Contact & Socials */}
         <div className="sm:col-span-2 lg:col-span-1">
           <Logo src={s.logo_light_url} className="!h-24" />
@@ -59,18 +60,20 @@ export default function Footer({ settings = {} }) {
         </div>
 
         {/* Column 2: Shop */}
-        <div>
-          <h3 className="mb-3 text-xl !text-gold">Shop</h3>
-          <ul className="space-y-2 text-sm text-ivory/90">
-            {(links?.shop || []).map((item) => (
-              <li key={item.href + item.label}>
-                <Link href={item.href} className="hover:text-gold">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {visibleShopLinks.length > 0 && (
+          <div>
+            <h3 className="mb-3 text-xl !text-gold">Shop</h3>
+            <ul className="space-y-2 text-sm text-ivory/90">
+              {visibleShopLinks.map((item) => (
+                <li key={item.href + item.label}>
+                  <Link href={item.href} className="hover:text-gold">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Column 3: Help */}
         <div>

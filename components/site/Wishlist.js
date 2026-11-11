@@ -3,8 +3,8 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Photo from './Photo';
 import { CloseIcon, HeartIcon, WhatsAppIcon } from '@/components/Icons';
+import { useCart } from './Cart';
 import { inr } from '@/lib/format';
-import { buildWhatsAppLink } from '@/lib/whatsapp';
 
 const STORAGE_KEY = 'kayathi_wishlist_v1';
 
@@ -25,6 +25,7 @@ export function WishlistProvider({ children }) {
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const { addItem } = useCart();
 
   useEffect(() => {
     try {
@@ -129,10 +130,6 @@ export function WishlistProvider({ children }) {
               ) : (
                 <ul className="divide-y divide-espresso/15">
                   {items.map((it) => {
-                    const waHref = buildWhatsAppLink({
-                      product: it,
-                      qty: 1,
-                    });
                     return (
                       <li key={it.id || it.slug} className="flex gap-4 py-4">
                         <Link
@@ -156,14 +153,29 @@ export function WishlistProvider({ children }) {
                             )}
                           </div>
                           <div className="mt-2 flex flex-wrap items-center gap-3">
-                            <a
-                              href={waHref}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpen(false);
+                                addItem(
+                                  {
+                                    product: {
+                                      sku: it.sku || it.id || it.slug,
+                                      name: it.name,
+                                      slug: it.slug,
+                                      price: it.price,
+                                      stock: 10,
+                                    },
+                                    qty: 1,
+                                    image: it.image || null,
+                                  },
+                                  { openCheckout: true }
+                                );
+                              }}
                               className="inline-flex items-center gap-1.5 bg-[#1F7A4C] px-3 py-1.5 text-xs font-medium text-ivory transition hover:bg-[#17603B]"
                             >
-                              <WhatsAppIcon className="h-3.5 w-3.5" /> Order on WhatsApp
-                            </a>
+                              <WhatsAppIcon className="h-3.5 w-3.5" /> Place order
+                            </button>
                             <button
                               type="button"
                               onClick={() => removeItem(it.id || it.slug)}

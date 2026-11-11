@@ -33,31 +33,37 @@ export default function ProductCard({ p }) {
   const { isSaved, toggleItem } = useWishlist();
   const saved = isSaved(p.id || p.slug);
 
-  const quickWaHref = buildWhatsAppLink({
-    product: p,
-    size: (p.sizes || [])[0] || '',
-    colour: (p.colours || [])[0] || '',
-    qty: 1,
-  });
+  function addProductToCart(openCheckout = false) {
+    if (soldOut) return;
+    addItem(
+      {
+        product: {
+          sku: p.sku || p.id,
+          name: p.name,
+          slug: p.slug,
+          price: p.price,
+          stock: p.stock,
+        },
+        size: (p.sizes || [])[0] || '',
+        colour: (p.colours || [])[0] || '',
+        qty: 1,
+        image: img?.url || null,
+        url: typeof window !== 'undefined' ? `${window.location.origin}/product/${p.slug}` : '',
+      },
+      { openCheckout }
+    );
+  }
 
   function handleQuickAdd(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (soldOut) return;
-    addItem({
-      product: {
-        sku: p.sku || p.id,
-        name: p.name,
-        slug: p.slug,
-        price: p.price,
-        stock: p.stock,
-      },
-      size: (p.sizes || [])[0] || '',
-      colour: (p.colours || [])[0] || '',
-      qty: 1,
-      image: img?.url || null,
-      url: typeof window !== 'undefined' ? `${window.location.origin}/product/${p.slug}` : '',
-    });
+    addProductToCart(false);
+  }
+
+  function handleQuickOrder(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    addProductToCart(true);
   }
 
   function handleWishlistToggle(e) {
@@ -136,17 +142,16 @@ export default function ProductCard({ p }) {
         {/* Quick Action Buttons (Bottom-Right) */}
         {!soldOut && (
           <div className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
-            <a
-              href={quickWaHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Order ${p.name} on WhatsApp`}
-              title="Order on WhatsApp"
+            <button
+              type="button"
+              onClick={handleQuickOrder}
+              aria-label={`Order ${p.name}`}
+              title="Place order"
               className="flex h-9 items-center gap-1.5 rounded-full bg-[#1F7A4C] px-3 text-xs font-medium text-ivory shadow-md ring-1 ring-gold transition hover:bg-[#17603B]"
             >
               <WhatsAppIcon className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Order</span>
-            </a>
+            </button>
             <button
               type="button"
               onClick={handleQuickAdd}

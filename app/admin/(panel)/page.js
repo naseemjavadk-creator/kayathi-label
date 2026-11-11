@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase/client';
+import { filterVisibleProducts } from '@/lib/data';
 import { inr } from '@/lib/format';
 
 export default function Dashboard() {
@@ -16,15 +17,21 @@ export default function Dashboard() {
         const head = { count: 'exact', head: true };
         const { data: s } = await sb.from('site_settings').select('low_stock_threshold').eq('id', 1).maybeSingle();
         const threshold = s?.low_stock_threshold ?? 3;
-        const [total, available, out, cats, recent, low] = await Promise.all([
+        const [total, available, out, cats, allProds, recent, low] = await Promise.all([
           count(sb.from('products').select('id', head)),
           count(sb.from('products').select('id', head).eq('is_available', true)),
           count(sb.from('products').select('id', head).eq('is_available', false)),
           count(sb.from('categories').select('id', head)),
+          sb.from('products').select('id,name,sku,category_id,is_published'),
           sb.from('products').select('id,name,sku,price,created_at').order('created_at', { ascending: false }).limit(5),
           sb.from('products').select('id,name,sku,stock').gt('stock', 0).lte('stock', threshold).order('stock').limit(10),
         ]);
-        setD({ total, available, out, cats, recent: recent.data || [], low: low.data || [], threshold });
+        const activeCats = new Set(
+          filterVisibleProducts((allProds.data || []).filter((p) => p.is_published))
+            .map((p) => p.category_id)
+            .filter(Boolean)
+        ).size;
+        setD({ total, available, out, cats, activeCats, recent: recent.data || [], low: low.data || [], threshold });
       } catch (e) {
         setErr(e.message || 'Could not load the dashboard.');
       }
@@ -38,7 +45,7 @@ export default function Dashboard() {
     ['Total products', d.total],
     ['Available', d.available],
     ['Out of stock', d.out],
-    ['Categories', d.cats],
+    [`Active categories (${d.cats} total)`, d.activeCats],
   ];
 
   return (

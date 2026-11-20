@@ -28,6 +28,9 @@ import PlayTeaser from '@/components/site/PlayTeaser';
 import TrustStrip from '@/components/site/TrustStrip';
 import Testimonials from '@/components/site/Testimonials';
 import WhatsAppSignup from '@/components/site/WhatsAppSignup';
+import RunwayLookbook from '@/components/site/RunwayLookbook';
+import { loadLookbook } from '@/lib/lookbook';
+import { LOOKBOOK_CONFIG } from '@/config/lookbook';
 
 export const dynamic = 'force-dynamic';
 const SEL = '*, product_images(url,sort_order)';
@@ -49,6 +52,7 @@ export default async function Home() {
     db.from('instagram_posts').select('*').order('sort_order').limit(6),
     loadPlayProducts(),
   ]);
+  const lookbook = LOOKBOOK_CONFIG.showOnHome ? await loadLookbook().catch(() => []) : [];
 
   const visibleCovers = filterVisibleProducts(covers.data || []);
   const inStock = visibleCovers.filter((p) => p.is_available && p.stock > 0);
@@ -170,6 +174,19 @@ export default async function Home() {
             ))}
           </div>
         </Reveal>
+      )}
+
+      {lookbook.length > 0 && (
+        <div className="py-6 md:py-10">
+          <RunwayLookbook
+            looks={lookbook}
+            title={LOOKBOOK_CONFIG.title}
+            intro={LOOKBOOK_CONFIG.intro}
+            lookLabel={LOOKBOOK_CONFIG.lookLabel}
+            shopText={LOOKBOOK_CONFIG.shopText}
+            firstLookNumber={LOOKBOOK_CONFIG.firstLookNumber}
+          />
+        </div>
       )}
 
       <ComingSoonRow items={soon} whatsapp={settings.whatsapp} />

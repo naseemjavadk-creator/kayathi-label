@@ -16,6 +16,7 @@ export default async function sitemap() {
     '',
     '/shop',
     '/new-arrivals',
+    '/lookbook',
     '/coming-soon',
     '/about',
     '/contact',

@@ -61,6 +61,7 @@ export const SITE_CONFIG = {
     },
     { label: 'Accessories', href: '/category/accessories' },
     { label: 'New Arrivals', href: '/new-arrivals' },
+    { label: 'Lookbook', href: '/lookbook' },
     { label: 'Gifts', href: '/shop?max=2500' },
     { label: 'Fun Zone', href: '/play', highlight: true },
   ],
@@ -103,6 +104,7 @@ export const SITE_CONFIG = {
     company: [
       { label: 'About KAYATHI LABEL', href: '/about' },
       { label: 'Fun Zone (Spin & Quiz)', href: '/play' },
+      { label: 'Runway Lookbook', href: '/lookbook' },
       { label: 'Shop All Collections', href: '/shop' },
     ],
     policies: [

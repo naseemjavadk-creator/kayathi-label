@@ -1,7 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BagIcon, ShieldCheckIcon, WhatsAppIcon } from '@/components/Icons';
 import { useCart } from './Cart';
+import StickyAddToCart from './StickyAddToCart';
+import { SITE_CONFIG } from '@/config/site';
 import { sortedImages } from '@/lib/images';
 import { waLink, buildOrderMessage } from '@/lib/whatsapp';
 import {
@@ -25,6 +27,7 @@ export default function OrderPanel({ product, whatsapp = '+917907139297' }) {
   const [submitted, setSubmitted] = useState(false);
   const [sentWaUrl, setSentWaUrl] = useState('');
   const { addItem } = useCart();
+  const addBtnRef = useRef(null);
 
   useEffect(() => {
     setUrl(window.location.origin + window.location.pathname);
@@ -45,9 +48,10 @@ export default function OrderPanel({ product, whatsapp = '+917907139297' }) {
   const { errors, isValid } = validateDelivery(delivery);
   const maxQty = Math.max(1, Math.min(stock, 10));
 
-  function handleAddToBag() {
+  const firstImg = product.image || sortedImages(product)[0]?.url || null;
+
+  function handleAddToBag(options = { openCheckout: false }) {
     if (soldOut || missing.length > 0) return;
-    const firstImg = sortedImages(product)[0]?.url || null;
     addItem(
       {
         product: {
@@ -63,7 +67,7 @@ export default function OrderPanel({ product, whatsapp = '+917907139297' }) {
         image: firstImg,
         url,
       },
-      { openCheckout: false }
+      options
     );
   }
 
@@ -397,9 +401,10 @@ export default function OrderPanel({ product, whatsapp = '+917907139297' }) {
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <button
+          ref={addBtnRef}
           type="button"
           disabled={missing.length > 0}
-          onClick={handleAddToBag}
+          onClick={() => handleAddToBag()}
           className="btn btn-outline flex-1 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <BagIcon className="h-4 w-4" /> Add to bag
@@ -433,6 +438,22 @@ export default function OrderPanel({ product, whatsapp = '+917907139297' }) {
           </a>
         </div>
       )}
+
+      <StickyAddToCart
+        targetRef={addBtnRef}
+        product={product}
+        image={firstImg}
+        sizes={sizes}
+        colours={colours}
+        size={size}
+        colour={colour}
+        setSize={setSize}
+        setColour={setColour}
+        onAdd={() => {
+          const after = SITE_CONFIG.stickyAddToCart?.afterAdd || 'stay';
+          handleAddToBag({ openCheckout: after === 'checkout', openDrawer: after !== 'stay' });
+        }}
+      />
 
       <p className="text-sm text-espresso/70">
         This opens WhatsApp with your product and delivery details filled in. Your order is only

@@ -113,7 +113,7 @@ export default async function ProductPage({ params }) {
             {p.description && <p className="mt-6 max-w-xl whitespace-pre-line leading-relaxed">{p.description}</p>}
 
             <OrderPanel
-              product={{ name: p.name, sku: p.sku, price: p.price, sizes: p.sizes, colours: p.colours, stock: p.stock, is_available: p.is_available }}
+              product={{ name: p.name, sku: p.sku, slug: p.slug, price: p.price, original_price: p.original_price, image: images[0]?.url || null, sizes: p.sizes, colours: p.colours, stock: p.stock, is_available: p.is_available }}
               whatsapp={settings.whatsapp}
             />
 

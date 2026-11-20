@@ -97,7 +97,7 @@ export function CartProvider({ whatsapp = '+917907139297', children }) {
       ];
     });
     setStep(options.openCheckout ? 'form' : 'bag');
-    setOpen(true);
+    if (options.openDrawer !== false) setOpen(true);
   }
 
   function updateQty(key, nextQty) {
@@ -177,7 +177,7 @@ export function FloatingCartButton() {
         setOpen(true);
       }}
       aria-label={`Open shopping bag (${count} items)`}
-      className="fixed bottom-[8.25rem] right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-burgundy text-ivory shadow-lg ring-2 ring-gold transition-colors hover:bg-burgundy-dark md:bottom-[9.25rem] md:right-5 md:h-14 md:w-14"
+      className="lift-for-satc fixed bottom-[8.25rem] right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-burgundy text-ivory shadow-lg ring-2 ring-gold transition-colors hover:bg-burgundy-dark md:bottom-[9.25rem] md:right-5 md:h-14 md:w-14"
     >
       <BagIcon className="h-6 w-6 md:h-7 md:w-7" />
       {count > 0 && (

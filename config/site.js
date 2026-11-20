@@ -36,6 +36,18 @@ export const SITE_CONFIG = {
   minSectionProducts: 3,
   newBadgeDays: 30,
 
+  /**
+   * Slim "Add to bag" bar that slides up on the product page once the main
+   * Add to bag button scrolls off the top of the screen.
+   * afterAdd: 'stay' (just show "Added"), 'bag' (open the bag) or 'checkout' (open the order form).
+   */
+  stickyAddToCart: {
+    enabled: true,
+    desktop: false,
+    note: 'COD available, 7-day easy exchange',
+    afterAdd: 'stay',
+  },
+
   /** @type {AnnouncementBarConfig} */
   announcementBar: {
     enabled: true,

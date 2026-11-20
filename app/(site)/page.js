@@ -108,6 +108,13 @@ export default async function Home() {
     '@context': 'https://schema.org',
     '@graph': [
       {
+        '@type': 'WebSite',
+        name: SITE_CONFIG.brandName,
+        alternateName: ['Kayathi Label', 'Kayathi'],
+        url: base,
+        inLanguage: 'en-IN',
+      },
+      {
         '@type': 'Organization',
         name: SITE_CONFIG.brandName,
         url: base,

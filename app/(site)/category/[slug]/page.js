@@ -1,5 +1,5 @@
 import Catalogue from '@/components/site/Catalogue';
-import { publicClient, siteUrl, sortedImages, filterVisibleProducts } from '@/lib/data';
+import { publicClient, siteUrl, sortedImages, filterVisibleProducts, shareImage } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +28,7 @@ export async function generateMetadata({ params, searchParams }) {
       .eq('category_id', data.id)
       .limit(10);
     const firstWithImg = filterVisibleProducts(prods || []).find((p) => sortedImages(p).length > 0);
-    if (firstWithImg) ogImage = sortedImages(firstWithImg)[0].url;
+    if (firstWithImg) ogImage = shareImage(sortedImages(firstWithImg)[0].url);
   }
 
   return {

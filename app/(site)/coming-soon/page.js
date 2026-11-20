@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Coming soon',
   description: 'New pieces on their way to KAYATHI LABEL. Message us on WhatsApp to be told when they arrive.',
+  alternates: { canonical: '/coming-soon' },
 };
 
 export default async function ComingSoonPage() {

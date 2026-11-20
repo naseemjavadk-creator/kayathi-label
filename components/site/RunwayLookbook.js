@@ -395,33 +395,24 @@ export default function RunwayLookbook({
       first,
       onChange: (i) => {
         setActive(i);
-        setAnnounce(`${lookLabel} ${first + i}, ${i + 1} of ${n}`);
+        setAnnounce(`${looks[i]?.title || `${lookLabel} ${first + i}`}, ${i + 1} of ${n}`);
       },
     });
     return () => ctrl.current?.destroy();
   }, [n, first, lookLabel]);
 
-  // Keep the active look's products in view in the rail.
-  const didMount = useRef(false);
+  // Start the rail at the first product whenever the slide changes.
   useEffect(() => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const card = rail.querySelector(`[data-look="${active}"]`);
-    if (!card) return;
-    const mobile = window.matchMedia('(max-width: 819.98px)').matches;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const behavior = !didMount.current || reduced ? 'auto' : 'smooth';
-    didMount.current = true;
-    const cs = window.getComputedStyle(rail);
-    if (mobile) rail.scrollTo({ left: card.offsetLeft - (parseFloat(cs.paddingLeft) || 0), behavior });
-    else rail.scrollTo({ top: card.offsetTop - (parseFloat(cs.paddingTop) || 0), behavior });
+    railRef.current?.scrollTo({ top: 0, left: 0 });
   }, [active]);
 
   if (!n) return null;
 
   const current = looks[active] || looks[0];
-  const cards = looks.flatMap((look, li) => look.products.map((p) => ({ ...p, look: li, key: `${look.id}-${p.id}` })));
-  const hasRail = cards.length > 0;
+  // The rail lists every product of the front slide only, so categories never mix.
+  const cards = (current.products || []).map((p) => ({ ...p, key: `${current.id}-${p.id}` }));
+  const hasRail = looks.some((l) => (l.products || []).length > 0);
+  const lookName = (i) => looks[i]?.title || `${lookLabel} ${first + i}`;
 
   function handleAdd(p) {
     addItem({
@@ -467,14 +458,15 @@ export default function RunwayLookbook({
           </div>
 
           <div className="rl-foot">
+            {current.title && <p className="rl-look-title" aria-live="off">{current.title}</p>}
             <p className="rl-counter">
               <span className="rl-counter__label" aria-hidden="true">{lookLabel}</span>
               <span className="rl-odo" data-rl-odo aria-hidden="true">{first}</span>
-              <span className="rl-sr">{`${lookLabel} ${first + active}`}</span>
+              <span className="rl-sr">{lookName(active)}</span>
             </p>
             {current.shopUrl ? (
               <Link className="rl-shop" href={current.shopUrl}>
-                <span>{shopText}</span>
+                <span>{current.title ? `${shopText} · ${current.title}` : shopText}</span>
                 <ArrowIcon />
               </Link>
             ) : (
@@ -504,11 +496,11 @@ export default function RunwayLookbook({
           <aside className="rl-rail" aria-label={shopText}>
             <p className="rl-rail__head">
               <span>{shopText}</span>
-              <span className="rl-rail__num">{`${lookLabel} ${first + active}`}</span>
+              <span className="rl-rail__num">{`${lookName(active)} · ${cards.length}`}</span>
             </p>
-            <ul className="rl-rail__list" ref={railRef}>
+            <ul className="rl-rail__list" ref={railRef} key={current.id}>
               {cards.map((p) => (
-                <li key={p.key} className={`rl-card${p.look === active ? ' is-active' : ''}`} data-look={p.look}>
+                <li key={p.key} className="rl-card is-active">
                   <div className="rl-card__media">
                     {p.image && <img src={p.image} alt={p.name} loading="lazy" />}
                   </div>

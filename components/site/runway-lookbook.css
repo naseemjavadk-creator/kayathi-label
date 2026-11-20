@@ -219,6 +219,14 @@
   padding-right: 0.06em;
 }
 
+.rl-root .rl-look-title {
+  margin: 0 0 -4px;
+  font-family: var(--rl-display);
+  font-size: clamp(13px, 1.2vw, 17px);
+  letter-spacing: var(--rl-track);
+  text-transform: uppercase;
+  color: var(--rl-text);
+}
 .rl-root .rl-shop {
   position: relative;
   display: inline-flex;

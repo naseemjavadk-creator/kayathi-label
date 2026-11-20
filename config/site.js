@@ -44,7 +44,6 @@ export const SITE_CONFIG = {
   stickyAddToCart: {
     enabled: true,
     desktop: false,
-    note: 'COD available, 7-day easy exchange',
     afterAdd: 'stay',
   },
 

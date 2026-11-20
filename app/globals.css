@@ -94,3 +94,13 @@
 @media (min-width: 800px) { .soon-grid { grid-template-columns: repeat(4, 1fr); } }
 .soon-grid .sc { width: auto; margin: 0; }
 @media (prefers-reduced-motion: reduce) { .tick .tr, .mt { animation: none; } .mq { overflow-x: auto; } }
+
+/* ---------- sticky add-to-bag bar (product page) ---------- */
+.satc { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; transform: translateY(110%); visibility: hidden; transition: transform .35s cubic-bezier(.2,.7,.2,1), visibility 0s linear .35s; padding-bottom: env(safe-area-inset-bottom); }
+.satc.on { transform: none; visibility: visible; transition: transform .35s cubic-bezier(.2,.7,.2,1), visibility 0s; }
+@media (min-width: 768px) { .satc.mobile-only { display: none; } }
+/* Floating WhatsApp / Instagram / bag / back-to-top buttons move up while the bar is showing. */
+.lift-for-satc { transition-property: color, background-color, border-color, opacity, transform, translate; translate: 0 0; }
+html[data-satc="on"] .lift-for-satc { translate: 0 calc(-1 * var(--satc-h, 0px)); }
+@media (min-width: 768px) { html[data-satc="on"][data-satc-mobile-only] .lift-for-satc { translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .satc, .satc.on { transition: none; } }

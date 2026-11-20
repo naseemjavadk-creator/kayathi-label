@@ -119,6 +119,8 @@ class RunwayStage {
       const filter = g.blur > 0.05 ? `blur(${g.blur.toFixed(2)}px) saturate(${g.sat.toFixed(3)})` : 'none';
       const opacity = g.o.toFixed(3);
       el.style.zIndex = g.z;
+      // Depth: a model turns slightly as it slides in or out, like a card on a turntable.
+      el.style.setProperty('--rl-ry', `${(-clamp(d, -1, 1) * 14).toFixed(2)}deg`);
 
       if (animate && prev !== undefined && Math.abs(d - prev) > 1.5) {
         // Wrapping around the loop: move invisibly, then fade in place.
@@ -306,6 +308,36 @@ class RunwayStage {
         this.timers.wheelIdle = setTimeout(() => { this.wheelLocked = false; }, 450);
       }
     }, { signal: this.ac.signal, passive: false });
+
+    // Depth effect on the front photo: follows the mouse on desktop and the phone's tilt where
+    // the browser gives it without a permission prompt. Off for reduced motion.
+    let tiltRaf = 0;
+    const setTilt = (x, y) => {
+      if (this.reduced()) x = y = 0;
+      cancelAnimationFrame(tiltRaf);
+      tiltRaf = requestAnimationFrame(() => {
+        stage.style.setProperty('--rl-tx', clamp(x, -1, 1).toFixed(3));
+        stage.style.setProperty('--rl-ty', clamp(y, -1, 1).toFixed(3));
+      });
+    };
+    stage.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || this.drag) return;
+      const r = stage.getBoundingClientRect();
+      setTilt(((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1);
+    }, opt);
+    stage.addEventListener('pointerleave', () => setTilt(0, 0), opt);
+    if ('DeviceOrientationEvent' in window && typeof window.DeviceOrientationEvent.requestPermission !== 'function') {
+      let base = null;
+      window.addEventListener('deviceorientation', (e) => {
+        if (e.gamma == null || e.beta == null) return;
+        if (!base) base = { g: e.gamma, b: e.beta };
+        // Drift the resting angle slowly so holding the phone at any angle stays centred.
+        base.g += (e.gamma - base.g) * 0.02;
+        base.b += (e.beta - base.b) * 0.02;
+        setTilt((e.gamma - base.g) / 20, (e.beta - base.b) / 20);
+      }, opt);
+    }
+    this.ac.signal.addEventListener('abort', () => cancelAnimationFrame(tiltRaf));
 
     const relayout = () => {
       this.measure();

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import RunwayLookbook from '@/components/site/RunwayLookbook';
+import LookbookSheets from '@/components/site/LookbookSheets';
 import { loadLookbook } from '@/lib/lookbook';
 import { LOOKBOOK_CONFIG } from '@/config/lookbook';
 
@@ -22,13 +22,12 @@ export default async function LookbookPage() {
   }
   return (
     <div className="pt-8 md:pt-12">
-    <RunwayLookbook
-      looks={groups}
+    <LookbookSheets
+      sheets={groups}
       title={LOOKBOOK_CONFIG.title}
       intro={LOOKBOOK_CONFIG.intro}
       lookLabel={LOOKBOOK_CONFIG.lookLabel}
       shopText={LOOKBOOK_CONFIG.shopText}
-      firstLookNumber={LOOKBOOK_CONFIG.firstLookNumber}
     />
     </div>
   );

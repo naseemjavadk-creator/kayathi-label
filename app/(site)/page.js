@@ -28,7 +28,7 @@ import PlayTeaser from '@/components/site/PlayTeaser';
 import TrustStrip from '@/components/site/TrustStrip';
 import Testimonials from '@/components/site/Testimonials';
 import WhatsAppSignup from '@/components/site/WhatsAppSignup';
-import RunwayLookbook from '@/components/site/RunwayLookbook';
+import LookbookSheets from '@/components/site/LookbookSheets';
 import { loadLookbook } from '@/lib/lookbook';
 import { LOOKBOOK_CONFIG } from '@/config/lookbook';
 
@@ -178,13 +178,12 @@ export default async function Home() {
 
       {lookbook.length > 0 && (
         <div className="py-6 md:py-10">
-          <RunwayLookbook
-            looks={lookbook}
+          <LookbookSheets
+            sheets={lookbook}
             title={LOOKBOOK_CONFIG.title}
             intro={LOOKBOOK_CONFIG.intro}
             lookLabel={LOOKBOOK_CONFIG.lookLabel}
             shopText={LOOKBOOK_CONFIG.shopText}
-            firstLookNumber={LOOKBOOK_CONFIG.firstLookNumber}
           />
         </div>
       )}

@@ -85,7 +85,8 @@ class RunwayStage {
     const vpX = W * (m ? 0.74 : 0.72);
     const floorY = H * 0.95;
     const horizonY = H * (m ? 0.3 : 0.32);
-    const limit = this.n >= 3 ? this.n - 1 : this.n;
+    // Show at most 5 models receding, however many products the category has.
+    const limit = Math.min(5, this.n >= 3 ? this.n - 1 : this.n);
 
     if (d < 0) {
       const t = -d;
@@ -407,16 +408,26 @@ export default function RunwayLookbook({
     return () => ctrl.current?.destroy();
   }, [n, first, lookLabel]);
 
-  // Start the rail at the first product whenever the slide changes.
+  // Keep the front product in view in the side list.
+  const didMount = useRef(false);
   useEffect(() => {
-    railRef.current?.scrollTo({ top: 0, left: 0 });
+    const rail = railRef.current;
+    if (!rail) return;
+    const card = rail.querySelector(`[data-look="${active}"]`);
+    if (!card) return;
+    const mobile = window.matchMedia('(max-width: 819.98px)').matches;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const behavior = !didMount.current || reduced ? 'auto' : 'smooth';
+    didMount.current = true;
+    const cs = window.getComputedStyle(rail);
+    if (mobile) rail.scrollTo({ left: card.offsetLeft - (parseFloat(cs.paddingLeft) || 0), behavior });
+    else rail.scrollTo({ top: card.offsetTop - (parseFloat(cs.paddingTop) || 0), behavior });
   }, [active]);
 
   if (!n) return null;
 
   const current = looks[active] || looks[0];
-  // The rail lists every product of the front slide only, so categories never mix.
-  const cards = (current.products || []).map((p) => ({ ...p, key: `${current.id}-${p.id}` }));
+  const cards = looks.flatMap((look, li) => (look.products || []).map((p) => ({ ...p, look: li, key: `${look.id}-${p.id}` })));
   const hasRail = looks.some((l) => (l.products || []).length > 0);
   const lookName = (i) => looks[i]?.title || `${lookLabel} ${first + i}`;
 
@@ -472,7 +483,7 @@ export default function RunwayLookbook({
             </p>
             {current.shopUrl ? (
               <Link className="rl-shop" href={current.shopUrl}>
-                <span>{current.title ? `${shopText} · ${current.title}` : shopText}</span>
+                <span>{shopText}</span>
                 <ArrowIcon />
               </Link>
             ) : (
@@ -500,12 +511,12 @@ export default function RunwayLookbook({
         {hasRail && (
           <aside className="rl-rail" aria-label={shopText}>
             <p className="rl-rail__head">
-              <span>{shopText}</span>
-              <span className="rl-rail__num">{`${lookName(active)} · ${cards.length}`}</span>
+              <span>{title}</span>
+              <span className="rl-rail__num">{`${active + 1} / ${n}`}</span>
             </p>
-            <ul className="rl-rail__list" ref={railRef} key={current.id}>
+            <ul className="rl-rail__list" ref={railRef}>
               {cards.map((p) => (
-                <li key={p.key} className="rl-card is-active">
+                <li key={p.key} className={`rl-card${p.look === active ? ' is-active' : ''}`} data-look={p.look}>
                   <div className="rl-card__media">
                     {p.image && <img src={p.image} alt={p.name} loading="lazy" />}
                   </div>

@@ -7,16 +7,16 @@
  * (Rings, Chains, Bracelets, Earrings, Silk Sarees, Cotton Sarees…). New categories appear
  * automatically when you add products to them.
  *
- * Each category is one slide on the runway, and its side list shows every product in it.
- * In the owner dashboard (/admin/lookbook) you can set each slide's model photo, change
- * the order of the slides, or hide one. Without a photo, the first product's photo is used.
+ * Each category is one sheet. Inside a sheet, customers swipe through every product in it.
+ * In the owner dashboard (/admin/lookbook) you can set each sheet's photo (shown on its
+ * button), change the order of the sheets, or hide one.
  */
 export const LOOKBOOK_CONFIG = {
   /** Show the lookbook on the homepage (the /lookbook page always works). */
   showOnHome: true,
   title: 'The Runway Edit',
-  intro: 'Swipe left or right to walk through each collection.',
+  intro: 'Choose a category, then swipe to see every piece in it.',
   lookLabel: 'Look',
-  shopText: 'Shop all',
+  shopText: 'View this piece',
   firstLookNumber: 1,
 };

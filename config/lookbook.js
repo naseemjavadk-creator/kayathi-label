@@ -3,13 +3,17 @@
 /**
  * Runway Lookbook settings.
  *
- * HOW TO ADD YOUR OWN LOOKS
+ * EASIEST: manage looks in the owner dashboard at /admin/lookbook (needs the SQL file
+ * supabase/migrations/20261120_lookbook.sql run once in Supabase). Looks saved there win
+ * over everything below.
+ *
+ * HOW TO ADD LOOKS IN CODE INSTEAD
  * 1. Put full-length model photos in /public/lookbook (transparent PNG cut-outs look best,
  *    portrait 2:3). Supabase storage URLs from the admin uploader also work.
  * 2. Add an entry to `looks` below with the photo and the product slugs worn in it.
  *    The slug is the last part of a product URL: /product/<slug>.
  *
- * While `looks` is empty, the lookbook builds itself from your published products:
+ * While the dashboard and `looks` are both empty, the lookbook builds itself from your published products:
  * each look uses a saree photo plus matching jewellery, so it is never blank.
  *
  * @typedef {Object} LookConfig

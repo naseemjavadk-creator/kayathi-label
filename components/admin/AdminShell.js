@@ -10,6 +10,7 @@ const LINKS = [
   { href: '/admin/categories', label: 'Categories' },
   { href: '/admin/inventory', label: 'Inventory' },
   { href: '/admin/coming-soon', label: 'Coming soon' },
+  { href: '/admin/lookbook', label: 'Lookbook' },
   { href: '/admin/settings', label: 'Website' },
 ];
 

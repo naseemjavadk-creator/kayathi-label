@@ -10,6 +10,11 @@ import RunwayLookbook from './RunwayLookbook';
  */
 export default function LookbookSheets({ sheets = [], title, intro, lookLabel, shopText }) {
   const [id, setId] = useState(sheets[0]?.id);
+  // Where the runway starts in the chosen sheet: 0 = first item, -1 = last item
+  // (used when swiping backwards out of the next category).
+  const [start, setStart] = useState(0);
+  const [moved, setMoved] = useState(false);
+  const [visit, setVisit] = useState(0); // bumps on every change so the runway restarts cleanly
   const barRef = useRef(null);
 
   // Allow linking straight to a sheet: /lookbook#earrings
@@ -17,7 +22,7 @@ export default function LookbookSheets({ sheets = [], title, intro, lookLabel, s
     const slug = decodeURIComponent(window.location.hash.slice(1)).toLowerCase();
     if (!slug) return;
     const s = sheets.find((x) => x.href.toLowerCase().endsWith(`=${slug}`) || x.href.toLowerCase().endsWith(`/${slug}`) || x.title.toLowerCase() === slug);
-    if (s) setId(s.id);
+    if (s) { setStart(0); setId(s.id); }
   }, [sheets]);
 
   // Keep the chosen button in view in the row.
@@ -27,7 +32,18 @@ export default function LookbookSheets({ sheets = [], title, intro, lookLabel, s
   }, [id]);
 
   if (!sheets.length) return null;
-  const sheet = sheets.find((s) => s.id === id) || sheets[0];
+  const index = Math.max(0, sheets.findIndex((s) => s.id === id));
+  const sheet = sheets[index];
+
+  // Swiping past the last item opens the next category; swiping back past the
+  // first item opens the previous one at its last item. Loops at both ends.
+  const onBoundary = (dir) => {
+    const next = sheets[(index + dir + sheets.length) % sheets.length];
+    setStart(dir > 0 ? 0 : next.looks.length - 1);
+    setMoved(true);
+    setVisit((v) => v + 1);
+    setId(next.id);
+  };
 
   return (
     <div>
@@ -48,7 +64,7 @@ export default function LookbookSheets({ sheets = [], title, intro, lookLabel, s
                 type="button"
                 role="tab"
                 aria-selected={on}
-                onClick={() => setId(s.id)}
+                onClick={() => { setStart(0); setVisit((v) => v + 1); setId(s.id); }}
                 className={`flex shrink-0 snap-start items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-4 text-sm tracking-wide transition-colors ${
                   on ? 'border-burgundy bg-burgundy text-ivory' : 'border-espresso/20 bg-white text-espresso hover:border-burgundy'
                 }`}
@@ -66,8 +82,11 @@ export default function LookbookSheets({ sheets = [], title, intro, lookLabel, s
 
       <div role="tabpanel" aria-label={sheet.title}>
         <RunwayLookbook
-          key={sheet.id}
+          key={`${sheet.id}:${visit}`}
           looks={sheet.looks}
+          startIndex={start}
+          onBoundary={sheets.length > 1 ? onBoundary : undefined}
+          hideHint={moved}
           title={sheet.title}
           lookLabel={lookLabel}
           shopText={shopText}

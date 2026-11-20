@@ -15,7 +15,7 @@ export const LOOKBOOK_CONFIG = {
   /** Show the lookbook on the homepage (the /lookbook page always works). */
   showOnHome: true,
   title: 'The Runway Edit',
-  intro: 'Choose a category, then swipe to see every piece in it.',
+  intro: 'Swipe to see every piece. At the end of a category, keep swiping to move into the next one.',
   lookLabel: 'Look',
   shopText: 'View this piece',
   firstLookNumber: 1,

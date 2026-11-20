@@ -18,8 +18,11 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
  * expensive through React state) and reports the active look back via onChange.
  */
 class RunwayStage {
-  constructor(root, { first, onChange, onSwipe }) {
+  constructor(root, { first, onChange, onSwipe, start = 0, onBoundary }) {
     this.onSwipe = onSwipe;
+    // Called with +1 / -1 when the visitor goes past the last / first item,
+    // so the next or previous category can take over.
+    this.onBoundary = onBoundary;
     this.root = root;
     this.stage = root.querySelector('[data-rl-stage]');
     this.models = Array.from(root.querySelectorAll('[data-rl-model]'));
@@ -27,8 +30,8 @@ class RunwayStage {
     this.n = this.models.length;
     this.first = first;
     this.onChange = onChange;
-    this.active = 0;
-    this.pos = 0;
+    this.active = Math.min(Math.max(0, start), Math.max(0, this.n - 1));
+    this.pos = this.active;
     this.prevD = [];
     this.timers = {};
     this.drag = null;
@@ -44,10 +47,10 @@ class RunwayStage {
       return;
     }
     this.buildOdometer();
-    this.setOdometer(this.first);
+    this.setOdometer(this.first + this.active);
     this.bind();
     this.measure();
-    this.layout(0, true);
+    this.layout(this.active, true);
     this.raf = requestAnimationFrame(() => {
       root.classList.add('rl-is-ready');
       this.reveal();
@@ -141,6 +144,14 @@ class RunwayStage {
 
   goTo(index, opts = {}) {
     if (!this.n) return;
+    const want = Math.round(index);
+    if (this.onBoundary && (want >= this.n || want < 0)) {
+      // Past the end of this category: settle back, then hand over to the next one.
+      this.pos = this.active;
+      this.layout(this.active, false);
+      this.onBoundary(want >= this.n ? 1 : -1);
+      return;
+    }
     const target = mod(Math.round(index), this.n);
     const changed = target !== this.active;
     this.active = target;
@@ -151,8 +162,9 @@ class RunwayStage {
       this.onChange(target);
     }
   }
-  next() { if (this.n > 1) this.goTo(this.active + 1); }
-  prev() { if (this.n > 1) this.goTo(this.active - 1); }
+  canMove() { return this.n > 1 || !!this.onBoundary; }
+  next() { if (this.canMove()) this.goTo(this.active + 1); }
+  prev() { if (this.canMove()) this.goTo(this.active - 1); }
 
   buildOdometer() {
     if (!this.odo) return;
@@ -204,7 +216,7 @@ class RunwayStage {
 
     // Drag (mouse) and swipe (touch / pen)
     stage.addEventListener('pointerdown', (e) => {
-      if (this.n < 2) return;
+      if (!this.canMove()) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       if (e.target.closest('a, button')) return;
       this.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, moving: false, t: performance.now(), vx: 0, lastX: e.clientX, lastT: performance.now() };
@@ -275,7 +287,7 @@ class RunwayStage {
 
     // Horizontal scrolling (trackpad / shift + wheel). Vertical page scroll is left alone.
     stage.addEventListener('wheel', (e) => {
-      if (this.n < 2) return;
+      if (!this.canMove()) return;
       const ax = Math.abs(e.deltaX);
       const ay = Math.abs(e.deltaY);
       if (ax <= ay || ax < 1) return;
@@ -384,13 +396,18 @@ export default function RunwayLookbook({
   lookLabel = 'Look',
   shopText = 'Shop the look',
   firstLookNumber = 1,
+  startIndex = 0,
+  onBoundary,
+  hideHint = false,
 }) {
+  const boundaryRef = useRef(onBoundary);
+  boundaryRef.current = onBoundary;
   const rootRef = useRef(null);
   const railRef = useRef(null);
   const ctrl = useRef(null);
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(() => Math.min(Math.max(0, startIndex), Math.max(0, looks.length - 1)));
   const [announce, setAnnounce] = useState('');
-  const [swiped, setSwiped] = useState(false);
+  const [swiped, setSwiped] = useState(hideHint);
   const { addItem } = useCart();
   const first = Math.max(0, firstLookNumber);
   const n = looks.length;
@@ -399,6 +416,8 @@ export default function RunwayLookbook({
     if (!rootRef.current) return undefined;
     ctrl.current = new RunwayStage(rootRef.current, {
       first,
+      start: startIndex,
+      onBoundary: onBoundary ? (dir) => boundaryRef.current?.(dir) : undefined,
       onSwipe: () => setSwiped(true),
       onChange: (i) => {
         setActive(i);
@@ -494,7 +513,7 @@ export default function RunwayLookbook({
             )}
           </div>
 
-          {n > 1 && (
+          {(n > 1 || onBoundary) && (
             <div className="rl-swipe" aria-hidden="true">
               <span className={`rl-swipe__hint${swiped ? ' is-hidden' : ''}`}>
                 <svg viewBox="0 0 16 16" fill="none"><path d="M6 3.5 1.5 8 6 12.5M1.5 8h13M10 3.5 14.5 8 10 12.5" stroke="currentColor" strokeWidth="1.2" /></svg>

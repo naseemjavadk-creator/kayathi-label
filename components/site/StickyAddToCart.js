@@ -24,7 +24,6 @@ export default function StickyAddToCart({
   const cfg = SITE_CONFIG.stickyAddToCart || {};
   const enabled = cfg.enabled !== false;
   const mobileOnly = !cfg.desktop;
-  const note = cfg.note ?? 'COD available, 7-day easy exchange';
 
   const barRef = useRef(null);
   const sizeRef = useRef(null);
@@ -127,7 +126,6 @@ export default function StickyAddToCart({
                 </span>
               )}
             </p>
-            {note && <p className="mt-0.5 truncate text-[11px] leading-tight text-espresso/55">{note}</p>}
           </div>
 
           <button

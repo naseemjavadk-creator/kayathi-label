@@ -535,14 +535,30 @@
   .rl-root .rl-head__title { font-size: 15px; margin: 0; }
   .rl-root .rl-head__intro { display: none; }
   .rl-root .rl-odo { font-size: 28px; }
-  /* Product photos are opaque (not cut-outs), so keep the counter legible over them. */
+  /* Small caption on phones so it never hides the product photo.
+     The dots already show the position, so the big look number is hidden here. */
   .rl-root .rl-foot {
-    gap: 8px;
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.72);
+    left: 12px;
+    bottom: 10px;
+    max-width: 62%;
+    gap: 3px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.78);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
   }
+  .rl-root .rl-counter { display: none; }
+  .rl-root .rl-look-title {
+    max-width: 100%;
+    margin: 0;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rl-root .rl-shop { padding: 0 0 3px; gap: 6px; font-size: 8px; letter-spacing: 0.16em; }
+  .rl-root .rl-shop svg { width: 10px; height: 10px; }
   .rl-root .rl-nav__btn { width: 42px; height: 42px; }
   /* Keep the swipe hint clear of the site's floating buttons in the bottom corner. */
   .rl-root .rl-swipe { top: calc(var(--rl-pad) + 34px); bottom: auto; left: var(--rl-pad); right: auto; align-items: flex-start; }

@@ -11,8 +11,8 @@ export const metadata = {
 };
 
 export default async function LookbookPage() {
-  const looks = await loadLookbook().catch(() => []);
-  if (!looks.length) {
+  const groups = await loadLookbook().catch(() => []);
+  if (!groups.length) {
     return (
       <section className="container-x py-24 text-center">
         <h1 className="text-4xl">Lookbook coming soon</h1>
@@ -21,13 +21,15 @@ export default async function LookbookPage() {
     );
   }
   return (
+    <div className="pt-8 md:pt-12">
     <RunwayLookbook
-      looks={looks}
+      looks={groups}
       title={LOOKBOOK_CONFIG.title}
       intro={LOOKBOOK_CONFIG.intro}
       lookLabel={LOOKBOOK_CONFIG.lookLabel}
       shopText={LOOKBOOK_CONFIG.shopText}
       firstLookNumber={LOOKBOOK_CONFIG.firstLookNumber}
     />
+    </div>
   );
 }

@@ -18,7 +18,8 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
  * expensive through React state) and reports the active look back via onChange.
  */
 class RunwayStage {
-  constructor(root, { first, onChange }) {
+  constructor(root, { first, onChange, onSwipe }) {
+    this.onSwipe = onSwipe;
     this.root = root;
     this.stage = root.querySelector('[data-rl-stage]');
     this.models = Array.from(root.querySelectorAll('[data-rl-model]'));
@@ -191,8 +192,6 @@ class RunwayStage {
     const opt = { signal: this.ac.signal };
     const { root, stage } = this;
 
-    root.querySelector('[data-rl-prev]')?.addEventListener('click', () => this.prev(), opt);
-    root.querySelector('[data-rl-next]')?.addEventListener('click', () => this.next(), opt);
 
     root.addEventListener('keydown', (e) => {
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
@@ -207,7 +206,7 @@ class RunwayStage {
       if (this.n < 2) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       if (e.target.closest('a, button')) return;
-      this.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, moving: false };
+      this.drag = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, moving: false, t: performance.now(), vx: 0, lastX: e.clientX, lastT: performance.now() };
     }, opt);
 
     stage.addEventListener('pointermove', (e) => {
@@ -230,6 +229,10 @@ class RunwayStage {
         }
       }
       d.dx = dx;
+      const now = performance.now();
+      if (now - d.lastT > 0) d.vx = (e.clientX - d.lastX) / (now - d.lastT);
+      d.lastX = e.clientX;
+      d.lastT = now;
       const step = Math.max(160, this.W * (this.mobile ? 0.55 : 0.32));
       this.pos = this.active - clamp(dx / step, -3, 3);
       this.layout(this.pos, true);
@@ -243,7 +246,10 @@ class RunwayStage {
       stage.classList.remove('is-dragging');
       try { stage.releasePointerCapture(d.id); } catch {}
       let target = Math.round(this.pos);
-      if (target === this.active && Math.abs(d.dx) > 40) target = this.active + (d.dx < 0 ? 1 : -1);
+      // A short, quick flick is enough to move one slide, like a phone gallery.
+      const flick = Math.abs(d.vx) > 0.35 && Math.abs(d.dx) > 12;
+      if (target === this.active && (Math.abs(d.dx) > 40 || flick)) target = this.active + (d.dx < 0 ? 1 : -1);
+      this.onSwipe && this.onSwipe();
       this.suppressClick = true;
       clearTimeout(this.timers.click);
       this.timers.click = setTimeout(() => { this.suppressClick = false; }, 60);
@@ -251,7 +257,10 @@ class RunwayStage {
     };
     stage.addEventListener('pointerup', endDrag, opt);
     stage.addEventListener('pointercancel', endDrag, opt);
-    stage.addEventListener('lostpointercapture', endDrag, opt);
+    // Touch gives the touched model an implicit pointer capture; when we move capture to the
+    // stage, the model's lostpointercapture bubbles up here. Only the stage's own loss ends a drag,
+    // otherwise every phone swipe would be cancelled straight away.
+    stage.addEventListener('lostpointercapture', (e) => { if (e.target === stage) endDrag(e); }, opt);
     stage.addEventListener('dragstart', (e) => e.preventDefault(), opt);
 
     stage.addEventListener('click', (e) => {
@@ -260,11 +269,6 @@ class RunwayStage {
         e.stopPropagation();
         this.suppressClick = false;
         return;
-      }
-      const fig = e.target.closest('[data-rl-model]');
-      if (fig && fig.getAttribute('data-depth') === 'back') {
-        e.preventDefault();
-        this.goTo(parseInt(fig.getAttribute('data-index'), 10));
       }
     }, { signal: this.ac.signal, capture: true });
 
@@ -385,6 +389,7 @@ export default function RunwayLookbook({
   const ctrl = useRef(null);
   const [active, setActive] = useState(0);
   const [announce, setAnnounce] = useState('');
+  const [swiped, setSwiped] = useState(false);
   const { addItem } = useCart();
   const first = Math.max(0, firstLookNumber);
   const n = looks.length;
@@ -393,35 +398,27 @@ export default function RunwayLookbook({
     if (!rootRef.current) return undefined;
     ctrl.current = new RunwayStage(rootRef.current, {
       first,
+      onSwipe: () => setSwiped(true),
       onChange: (i) => {
         setActive(i);
-        setAnnounce(`${lookLabel} ${first + i}, ${i + 1} of ${n}`);
+        setAnnounce(`${looks[i]?.title || `${lookLabel} ${first + i}`}, ${i + 1} of ${n}`);
       },
     });
     return () => ctrl.current?.destroy();
   }, [n, first, lookLabel]);
 
-  // Keep the active look's products in view in the rail.
-  const didMount = useRef(false);
+  // Start the rail at the first product whenever the slide changes.
   useEffect(() => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const card = rail.querySelector(`[data-look="${active}"]`);
-    if (!card) return;
-    const mobile = window.matchMedia('(max-width: 819.98px)').matches;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const behavior = !didMount.current || reduced ? 'auto' : 'smooth';
-    didMount.current = true;
-    const cs = window.getComputedStyle(rail);
-    if (mobile) rail.scrollTo({ left: card.offsetLeft - (parseFloat(cs.paddingLeft) || 0), behavior });
-    else rail.scrollTo({ top: card.offsetTop - (parseFloat(cs.paddingTop) || 0), behavior });
+    railRef.current?.scrollTo({ top: 0, left: 0 });
   }, [active]);
 
   if (!n) return null;
 
   const current = looks[active] || looks[0];
-  const cards = looks.flatMap((look, li) => look.products.map((p) => ({ ...p, look: li, key: `${look.id}-${p.id}` })));
-  const hasRail = cards.length > 0;
+  // The rail lists every product of the front slide only, so categories never mix.
+  const cards = (current.products || []).map((p) => ({ ...p, key: `${current.id}-${p.id}` }));
+  const hasRail = looks.some((l) => (l.products || []).length > 0);
+  const lookName = (i) => looks[i]?.title || `${lookLabel} ${first + i}`;
 
   function handleAdd(p) {
     addItem({
@@ -467,14 +464,15 @@ export default function RunwayLookbook({
           </div>
 
           <div className="rl-foot">
+            {current.title && <p className="rl-look-title" aria-live="off">{current.title}</p>}
             <p className="rl-counter">
               <span className="rl-counter__label" aria-hidden="true">{lookLabel}</span>
               <span className="rl-odo" data-rl-odo aria-hidden="true">{first}</span>
-              <span className="rl-sr">{`${lookLabel} ${first + active}`}</span>
+              <span className="rl-sr">{lookName(active)}</span>
             </p>
             {current.shopUrl ? (
               <Link className="rl-shop" href={current.shopUrl}>
-                <span>{shopText}</span>
+                <span>{current.title ? `${shopText} · ${current.title}` : shopText}</span>
                 <ArrowIcon />
               </Link>
             ) : (
@@ -485,18 +483,17 @@ export default function RunwayLookbook({
             )}
           </div>
 
-          <div className="rl-nav">
-            <button type="button" className="rl-nav__btn" data-rl-prev aria-label="Previous look" disabled={n < 2}>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
-                <path d="M10.5 2.5 5 8l5.5 5.5" stroke="currentColor" strokeWidth="1.3" />
-              </svg>
-            </button>
-            <button type="button" className="rl-nav__btn" data-rl-next aria-label="Next look" disabled={n < 2}>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
-                <path d="M5.5 2.5 11 8l-5.5 5.5" stroke="currentColor" strokeWidth="1.3" />
-              </svg>
-            </button>
-          </div>
+          {n > 1 && (
+            <div className="rl-swipe" aria-hidden="true">
+              <span className={`rl-swipe__hint${swiped ? ' is-hidden' : ''}`}>
+                <svg viewBox="0 0 16 16" fill="none"><path d="M6 3.5 1.5 8 6 12.5M1.5 8h13M10 3.5 14.5 8 10 12.5" stroke="currentColor" strokeWidth="1.2" /></svg>
+                Swipe
+              </span>
+              <span className="rl-dots">
+                {looks.map((l, i) => <span key={l.id} className={`rl-dot${i === active ? ' is-on' : ''}`} />)}
+              </span>
+            </div>
+          )}
           <p className="rl-sr" aria-live="polite" aria-atomic="true">{announce}</p>
         </div>
 
@@ -504,11 +501,11 @@ export default function RunwayLookbook({
           <aside className="rl-rail" aria-label={shopText}>
             <p className="rl-rail__head">
               <span>{shopText}</span>
-              <span className="rl-rail__num">{`${lookLabel} ${first + active}`}</span>
+              <span className="rl-rail__num">{`${lookName(active)} · ${cards.length}`}</span>
             </p>
-            <ul className="rl-rail__list" ref={railRef}>
+            <ul className="rl-rail__list" ref={railRef} key={current.id}>
               {cards.map((p) => (
-                <li key={p.key} className={`rl-card${p.look === active ? ' is-active' : ''}`} data-look={p.look}>
+                <li key={p.key} className="rl-card is-active">
                   <div className="rl-card__media">
                     {p.image && <img src={p.image} alt={p.name} loading="lazy" />}
                   </div>

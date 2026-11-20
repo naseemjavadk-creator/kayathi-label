@@ -11,31 +11,18 @@ export default function Settings() {
   const [s, setS] = useState(null);
   const [banners, setBanners] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [looks, setLooks] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [lookbookTableReady, setLookbookTableReady] = useState(true);
   const [toast, notify] = useToast();
 
   const load = useCallback(async () => {
-    const [a, b, c, d, e] = await Promise.all([
+    const [a, b, c] = await Promise.all([
       sb.from('site_settings').select('*').eq('id', 1).maybeSingle(),
       sb.from('banners').select('*').order('sort_order'),
       sb.from('instagram_posts').select('*').order('sort_order'),
-      sb.from('lookbook_looks').select('*').order('sort_order').catch(() => ({ data: null, error: true })),
-      sb.from('products').select('id, name, sku').eq('is_published', true).order('name').limit(200),
     ]);
     if (a.error) notify(a.error.message, 'error');
     setS(a.data || { id: 1 });
     setBanners(b.data || []);
     setPosts(c.data || []);
-    if (d.error) {
-      setLookbookTableReady(false);
-      setLooks([]);
-    } else {
-      setLookbookTableReady(true);
-      setLooks(d.data || []);
-    }
-    setProducts(e.data || []);
   }, [sb, notify]);
   useEffect(() => { load(); }, [load]);
 
@@ -55,14 +42,6 @@ export default function Settings() {
       <AboutForm s={s} onSave={saveSettings} />
       <BannerManager sb={sb} banners={banners} reload={load} notify={notify} />
       <InstagramManager sb={sb} posts={posts} defaultLink={s.instagram_url} reload={load} notify={notify} />
-      <LookbookManager
-        sb={sb}
-        looks={looks}
-        products={products}
-        tableReady={lookbookTableReady}
-        reload={load}
-        notify={notify}
-      />
       {toast}
     </div>
   );
@@ -262,180 +241,6 @@ function InstagramManager({ sb, posts, defaultLink, reload, notify }) {
         fields={[['link', 'Link to the Instagram post (optional)', 'https://www.instagram.com/p/…']]}>
         Add image
       </Uploader>
-    </section>
-  );
-}
-
-function LookbookManager({ sb, looks, products, tableReady, reload, notify }) {
-  const [file, setFile] = useState(null);
-  const [alt, setAlt] = useState('');
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [busy, setBusy] = useState(false);
-
-  async function toggle(look) {
-    const { error } = await sb.from('lookbook_looks').update({ is_active: !look.is_active }).eq('id', look.id);
-    if (error) return notify(error.message, 'error');
-    reload();
-  }
-
-  async function del(look) {
-    if (!confirm('Delete this look?')) return;
-    const { error } = await sb.from('lookbook_looks').delete().eq('id', look.id);
-    if (error) return notify(error.message, 'error');
-    if (look.path) await removeFiles(sb, [look.path]);
-    notify('Look deleted');
-    reload();
-  }
-
-  function toggleProduct(id) {
-    setSelectedIds((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id);
-      if (prev.length >= 3) {
-        notify('Each look can link up to 3 products.', 'error');
-        return prev;
-      }
-      return [...prev, id];
-    });
-  }
-
-  async function addLook(e) {
-    e.preventDefault();
-    if (!file && selectedIds.length === 0) {
-      return notify('Upload a model photo or select at least one product.', 'error');
-    }
-    setBusy(true);
-    try {
-      let up = { url: '', path: '' };
-      if (file) {
-        const msg = validateImage(file);
-        if (msg) {
-          setBusy(false);
-          return notify(msg, 'error');
-        }
-        up = await uploadImage(sb, file, 'site/lookbook');
-      }
-      const { error } = await sb.from('lookbook_looks').insert({
-        image_url: up.url,
-        path: up.path,
-        alt: alt.trim(),
-        product_ids: selectedIds.slice(0, 3),
-        sort_order: looks.length + 1,
-        is_active: true,
-      });
-      if (error) {
-        if (up.path) await removeFiles(sb, [up.path]);
-        throw error;
-      }
-      setFile(null);
-      setAlt('');
-      setSelectedIds([]);
-      e.target.reset();
-      notify('Look added. The lookbook is updated.');
-      reload();
-    } catch (err) {
-      notify(err.message || 'Upload failed', 'error');
-    }
-    setBusy(false);
-  }
-
-  return (
-    <section className={panel}>
-      <h2 className="text-2xl">Runway lookbook (up to 10 looks)</h2>
-      <p className="text-sm text-espresso/70">
-        Curate styled looks for the Runway Lookbook on the homepage and <a href="/lookbook" target="_blank" className="underline text-burgundy">/lookbook</a>.
-        Each look pairs a full-length model photo with up to 3 products.
-      </p>
-
-      {!tableReady ? (
-        <div className="border border-gold/40 bg-gold/15 p-4 text-xs leading-relaxed text-espresso/80">
-          <p className="font-medium text-burgundy">To curate custom looks:</p>
-          <p className="mt-1">
-            Run <code className="bg-white px-1.5 py-0.5 font-mono">supabase/lookbook-migration.sql</code> in your Supabase SQL Editor.
-            Until then, looks are generated automatically from your published sarees &amp; jewellery.
-          </p>
-        </div>
-      ) : (
-        <>
-          {looks.length > 0 ? (
-            <ul className="space-y-3">
-              {looks.map((l) => (
-                <li key={l.id} className="flex items-center gap-3 border border-espresso/10 p-2.5">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {l.image_url ? (
-                    <img src={l.image_url} alt="" className="h-20 w-14 shrink-0 object-cover" />
-                  ) : (
-                    <div className="flex h-20 w-14 shrink-0 items-center justify-center bg-burgundy text-[10px] text-ivory">Auto Photo</div>
-                  )}
-                  <div className="min-w-0 flex-1 text-sm">
-                    <p className="truncate font-medium">{l.alt || 'Look'}</p>
-                    <p className="text-xs text-espresso/60">
-                      {l.product_ids?.length || 0} {(l.product_ids?.length || 0) === 1 ? 'product' : 'products'} · {l.is_active ? 'Showing' : 'Hidden'}
-                    </p>
-                  </div>
-                  <button type="button" onClick={() => toggle(l)} className="text-sm text-burgundy underline">
-                    {l.is_active ? 'Hide' : 'Show'}
-                  </button>
-                  <button type="button" onClick={() => del(l)} className="text-sm text-red-800 underline">
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-xs text-espresso/70">
-              No custom looks added yet. The lookbook is currently building automatic looks from your published pieces.
-            </p>
-          )}
-
-          {looks.length < 10 && (
-            <form onSubmit={addLook} className="space-y-3 border-t border-espresso/10 pt-4">
-              <div>
-                <label className="label" htmlFor="lb-photo">Model photo (optional — leaves blank to use the first product’s photo)</label>
-                <input
-                  id="lb-photo"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="block w-full text-sm file:mr-3 file:border-0 file:bg-burgundy file:px-4 file:py-2 file:text-ivory"
-                />
-              </div>
-
-              <Field
-                id="lb-alt"
-                label="Look title / description (optional)"
-                placeholder="e.g. Maroon Silk Saree with Temple Kemp Set"
-                value={alt}
-                onChange={setAlt}
-              />
-
-              <div>
-                <label className="label">Select up to 3 products worn in this look</label>
-                <div className="max-h-48 space-y-1.5 overflow-y-auto border border-espresso/20 bg-ivory p-3 text-xs">
-                  {products.map((p) => {
-                    const checked = selectedIds.includes(p.id);
-                    return (
-                      <label key={p.id} className="flex cursor-pointer items-center gap-2 hover:text-burgundy">
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleProduct(p.id)}
-                          className="h-3.5 w-3.5 accent-burgundy"
-                        />
-                        <span className="truncate">{p.name} ({p.sku})</span>
-                      </label>
-                    );
-                  })}
-                </div>
-                <p className="mt-1 text-xs text-espresso/60">{selectedIds.length} of 3 selected</p>
-              </div>
-
-              <button type="submit" disabled={busy} className="btn btn-primary">
-                {busy ? 'Saving…' : 'Add look'}
-              </button>
-            </form>
-          )}
-        </>
-      )}
     </section>
   );
 }

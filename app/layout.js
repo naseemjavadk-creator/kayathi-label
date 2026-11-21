@@ -33,7 +33,7 @@ export const metadata = {
   robots: { index: true, follow: true, 'max-image-preview': 'large' },
   // Paste the codes from Google Search Console / Bing Webmaster Tools into Vercel env vars.
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '2ojWLHsCr2K3bsp-UVeExoaJ2XeRBy5K4wCRR0aUCi8',
     other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
       ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
       : undefined,

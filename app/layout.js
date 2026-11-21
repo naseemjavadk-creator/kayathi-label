@@ -26,6 +26,18 @@ export const metadata = {
     locale: 'en_IN',
     images: [{ url: `${siteUrl()}/brand/hero-banner.jpg`, width: 1024, height: 559, alt: 'KAYATHI LABEL — The Art of Ethnic Elegance' }],
   },
+  keywords: [
+    'KAYATHI LABEL', 'sarees online', 'Kerala sarees', 'jewellery online India', 'bangles', 'rings',
+    'ethnic accessories', 'buy saree on WhatsApp', 'temple jewellery', 'Kerala boutique',
+  ],
+  robots: { index: true, follow: true, 'max-image-preview': 'large' },
+  // Paste the codes from Google Search Console / Bing Webmaster Tools into Vercel env vars.
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+      ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
+      : undefined,
+  },
   twitter: {
     card: 'summary_large_image',
     title: 'KAYATHI LABEL | The Art of Ethnic Elegance',

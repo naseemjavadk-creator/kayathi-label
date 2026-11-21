@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { publicClient, getSettings, sortedImages, siteUrl } from '@/lib/data';
+import { publicClient, getSettings, sortedImages, siteUrl, shareImage } from '@/lib/data';
 import { inr } from '@/lib/format';
 import { ALL_ATTRIBUTE_LABELS } from '@/lib/attributes';
 import ProductGallery from '@/components/site/ProductGallery';
@@ -18,13 +18,14 @@ async function load(slug) {
 export async function generateMetadata({ params }) {
   const p = await load(params.slug);
   if (!p) return { title: 'Product not found' };
-  const raw = sortedImages(p)[0]?.url;
-  // A small, resized copy of the photo for chat link previews (WhatsApp skips very large images).
-  const img = raw ? `${siteUrl()}/_next/image?url=${encodeURIComponent(raw)}&w=1080&q=70` : undefined;
+  const img = shareImage(sortedImages(p)[0]?.url);
+  const cat = p.subcategories?.name || p.categories?.name;
   const title = `${p.name} - ${inr(p.price)}`;
-  const description = `${inr(p.price)}. ${(p.description || `${p.name} from KAYATHI LABEL`).slice(0, 130)}`;
+  const blurb = (p.description || `${p.name}${cat ? ` (${cat})` : ''} from KAYATHI LABEL`).replace(/\s+/g, ' ').trim();
+  const description = `${inr(p.price)}. ${blurb.slice(0, 110)}${blurb.length > 110 ? '…' : ''} Order on WhatsApp, delivery across India.`;
   return {
-    title: p.name,
+    // Shown in Google results as "Name | Category | KAYATHI LABEL".
+    title: cat ? `${p.name} | ${cat}` : p.name,
     description,
     alternates: { canonical: `/product/${p.slug}` },
     openGraph: { title, description, type: 'website', url: `/product/${p.slug}`, images: img ? [{ url: img, alt: p.name }] : undefined },
@@ -52,21 +53,48 @@ export default async function ProductPage({ params }) {
     related = data || [];
   }
 
+  const base = siteUrl();
+  const productUrl = `${base}/product/${p.slug}`;
+  const crumbs = [
+    { name: 'Home', url: base },
+    p.categories && { name: p.categories.name, url: `${base}/category/${p.categories.slug}` },
+    p.subcategories && { name: p.subcategories.name, url: `${base}/category/${p.categories?.slug}?sub=${p.subcategories.slug}` },
+    { name: p.name, url: productUrl },
+  ].filter(Boolean);
+  // Product details Google can show in search (price, stock) plus the breadcrumb trail.
   const ld = {
     '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: p.name,
-    sku: p.sku,
-    description: p.description,
-    image: images.map((i) => i.url),
-    brand: { '@type': 'Brand', name: 'KAYATHI LABEL' },
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'INR',
-      price: Number(p.price),
-      availability: soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-      url: `${siteUrl()}/product/${p.slug}`,
-    },
+    '@graph': [
+      {
+        '@type': 'Product',
+        name: p.name,
+        sku: p.sku,
+        productID: p.sku,
+        url: productUrl,
+        description: p.description || `${p.name} from KAYATHI LABEL.`,
+        ...(images.length ? { image: images.map((i) => i.url) } : {}),
+        ...(p.categories?.name ? { category: [p.categories.name, p.subcategories?.name].filter(Boolean).join(' > ') } : {}),
+        ...(Array.isArray(p.colours) && p.colours.length ? { color: p.colours.join(', ') } : {}),
+        brand: { '@type': 'Brand', name: 'KAYATHI LABEL' },
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'INR',
+          price: Number(p.price),
+          itemCondition: 'https://schema.org/NewCondition',
+          availability: soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+          url: productUrl,
+          seller: { '@type': 'Organization', name: 'KAYATHI LABEL', url: base },
+          shippingDetails: {
+            '@type': 'OfferShippingDetails',
+            shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'IN' },
+          },
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url })),
+      },
+    ],
   };
 
   return (

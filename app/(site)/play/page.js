@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Fun zone',
   description: 'Play a style quiz, spin the wheel or match colours while you browse KAYATHI LABEL.',
+  alternates: { canonical: '/play' },
 };
 
 export default async function Play() {

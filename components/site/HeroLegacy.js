@@ -9,7 +9,7 @@ export default function HeroLegacy({ banners = [] }) {
   return (
     <section className="relative w-full bg-burgundy text-ivory">
       <h1 className="sr-only">
-        KAYATHI LABELS — Timeless Beauty, Forever Yours. Premium Sarees, Exquisite Jewellery &amp; More.
+        KAYATHI LABEL — Timeless Beauty, Forever Yours. Premium Sarees, Exquisite Jewellery &amp; More.
       </h1>
       <Link
         href="/shop"
@@ -18,12 +18,11 @@ export default function HeroLegacy({ banners = [] }) {
       >
         <Image
           src="/brand/timeless-beauty-hd.png"
-          alt="KAYATHI LABELS — Timeless Beauty, Forever Yours. Premium Sarees, Exquisite Jewellery & More"
+          alt="KAYATHI LABEL — Timeless Beauty, Forever Yours. Premium Sarees, Exquisite Jewellery & More"
           width={1376}
           height={600}
           priority
-          quality={100}
-          unoptimized
+          quality={90}
           sizes="100vw"
           className="block h-auto w-full object-contain [image-rendering:high-quality]"
         />

@@ -3,6 +3,7 @@ import Footer from '@/components/site/Footer';
 import FloatingWhatsApp from '@/components/site/FloatingWhatsApp';
 import Splash from '@/components/site/Splash';
 import BackToTop from '@/components/site/BackToTop';
+import VisitTracker from '@/components/site/VisitTracker';
 import AnnouncementBar from '@/components/site/AnnouncementBar';
 import { CartProvider } from '@/components/site/Cart';
 import { WishlistProvider } from '@/components/site/Wishlist';
@@ -41,6 +42,7 @@ export default async function SiteLayout({ children }) {
         <Footer settings={settings} shopLinks={footerShopLinks} />
         <FloatingWhatsApp number={settings.whatsapp} instagram={settings.instagram_url} />
         <BackToTop />
+        <VisitTracker />
       </WishlistProvider>
     </CartProvider>
   );

@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase/client';
@@ -18,6 +19,10 @@ const LINKS = [
 export default function AdminShell({ email, children }) {
   const path = usePathname();
   const router = useRouter();
+  // Mark this browser as the owner's so the website stops counting its visits.
+  useEffect(() => {
+    try { localStorage.setItem('kl_owner', '1'); } catch {}
+  }, []);
   const active = (href) => (href === '/admin' ? path === '/admin' : path.startsWith(href));
 
   async function signOut() {

@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase/client';
 
 const KEY = 'kl_vid';
+export const OWNER_KEY = 'kl_owner'; // set on any browser that has opened the owner dashboard
 
 // A random number kept in this browser, so one person opening 5 pages counts as 1 visitor.
 function visitorId() {
@@ -55,6 +56,9 @@ export default function VisitTracker() {
 
   useEffect(() => {
     if (!pathname || navigator.webdriver) return; // skip robots
+    try {
+      if (localStorage.getItem(OWNER_KEY)) return; // don't count the owner's own visits
+    } catch {}
     const id = visitorId();
     if (!id) return;
     // Only the first page of a visit is the "entry", with where they came from.

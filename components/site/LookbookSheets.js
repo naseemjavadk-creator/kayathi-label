@@ -25,10 +25,15 @@ export default function LookbookSheets({ sheets = [], title, intro, lookLabel, s
     if (s) { setStart(0); setId(s.id); }
   }, [sheets]);
 
-  // Keep the chosen button in view in the row.
+  // Keep the chosen button in view in the row. Only the row scrolls sideways:
+  // scrollIntoView() would also scroll the whole page down to this section,
+  // which made the home page open half-way down on phones.
   useEffect(() => {
-    const btn = barRef.current?.querySelector('[aria-selected="true"]');
-    btn?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    const bar = barRef.current;
+    const btn = bar?.querySelector('[aria-selected="true"]');
+    if (!bar || !btn) return;
+    const left = btn.offsetLeft - (bar.clientWidth - btn.offsetWidth) / 2;
+    bar.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
   }, [id]);
 
   if (!sheets.length) return null;
@@ -54,7 +59,7 @@ export default function LookbookSheets({ sheets = [], title, intro, lookLabel, s
           ref={barRef}
           role="tablist"
           aria-label="Lookbook categories"
-          className="-mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none]"
+          className="relative -mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none]"
         >
           {sheets.map((s) => {
             const on = s.id === sheet.id;
